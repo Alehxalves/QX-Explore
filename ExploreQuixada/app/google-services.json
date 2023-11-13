@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "175866099209",
+    "project_id": "explore-quixada",
+    "storage_bucket": "explore-quixada.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175866099209:android:05522a5bf99c6031676ad8",
+        "android_client_info": {
+          "package_name": "com.ufc.explorequixada"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrO3Dn_seTTNQwYis4R3Eslw47ihKEGCs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
