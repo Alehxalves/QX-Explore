@@ -7,7 +7,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.ufc.explorequixada.Entity.PostEntity;
 import com.ufc.explorequixada.Repository.PostRepository;
-import com.ufc.explorequixada.Repository.UserRepository;
 import com.ufc.explorequixada.Entity.UserEntity;
 import androidx.annotation.NonNull; // Import necessário para NonNull
 

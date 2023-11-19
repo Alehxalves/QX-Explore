@@ -79,25 +79,17 @@ public class RegisterActivity extends AppCompatActivity {
         password = String.valueOf(editTextPassword.getText());
 
         if (!checkEmptyFields(email, username, password)){
-            userController.checkIfUsernameExists(username, new UserController.OnCheckUsernameListener() {
-                @Override
-                public void onUsernameExists(boolean usernameExists) {
-                    if (usernameExists) {
-                        Toast.makeText(RegisterActivity.this, "Nome de usuário já cadastrado.",
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        progressBar.setVisibility(View.VISIBLE);
-                        btnRegister.setVisibility(View.GONE);
-                        createUser(email, password,username);
-                    }
-                }
-            });
-
+            progressBar.setVisibility(View.VISIBLE);
+            btnRegister.setVisibility(View.GONE);
+            createUser(email, password,username);
         }
     }
 
     public void createUser(String email,String password, String username) {
         UserEntity user = new UserEntity();
+        user.setEmail(email);
+        user.setUsername(username);
+        user.setPassword(password);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -105,16 +97,14 @@ public class RegisterActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.GONE);
                         btnRegister.setVisibility(View.VISIBLE);
                         if (task.isSuccessful()) {
-                            user.setEmail(email);
-                            user.setUsername(username);
-                            user.setPassword(password);
-                            userController.save(user);
+                            userController.createUser(user);
                             Toast.makeText(RegisterActivity.this, "Cadastro bem sucedido.",
                                     Toast.LENGTH_SHORT).show();
                             goToLoginActivity();
                         } else {
                             Toast.makeText(RegisterActivity.this, "Ocorreu um erro durante o cadastro.",
                                     Toast.LENGTH_SHORT).show();
+
                         }
                     }
                 });

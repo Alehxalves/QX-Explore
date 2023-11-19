@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.ufc.explorequixada.Fragment.FeedFragment;
 import com.ufc.explorequixada.Fragment.HomeFragment;
 import com.ufc.explorequixada.Fragment.ProfileFragment;
+import com.ufc.explorequixada.Fragment.FriendListFragment;
 import com.ufc.explorequixada.R;
 import com.ufc.explorequixada.Utils.UserViewModel;
 import com.ufc.explorequixada.databinding.ActivityMainBinding;
@@ -32,16 +33,16 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(new HomeFragment());
 
         auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
+        FirebaseUser loggedUer = auth.getCurrentUser();
 
-        if(user == null) {
+        if(loggedUer == null) {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
             finish();
         }
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        userViewModel.setUser(user);
+        userViewModel.setUser(loggedUer);
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -49,7 +50,10 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new HomeFragment());
             } else if (itemId == R.id.feed) {
                 replaceFragment(new FeedFragment());
-            } else if (itemId == R.id.profile) {
+
+            } else if (itemId == R.id.friendList) {
+                replaceFragment(new FriendListFragment());
+            }else if (itemId == R.id.profile) {
                 replaceFragment(new ProfileFragment());
             }
             return true;

@@ -1,54 +1,32 @@
 package com.ufc.explorequixada.Controller;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.auth.User;
-import com.ufc.explorequixada.Repository.UserRepository;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.ufc.explorequixada.Entity.UserEntity;
-import androidx.annotation.NonNull; // Import necessário para NonNull
-
-import com.google.android.gms.tasks.Task;
-
-
-import java.util.Objects;
+import com.ufc.explorequixada.Repository.UserDAO;
 
 public class UserController {
-    private UserRepository userRepository;
+
+    private final UserDAO userDAO;
 
     public UserController() {
-        userRepository = new UserRepository("users");
+        userDAO = new UserDAO();
     }
 
-    public void save(UserEntity user) {
-        userRepository.createDocument(user);
-    }
-
-    public void getUserByEmail(String email) {
-
-    }
-
-    public void checkIfUsernameExists(String username, OnCheckUsernameListener listener) {
-        userRepository.findByUsername(username, new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                UserEntity user = documentSnapshot.toObject(UserEntity.class);
-                if (user != null) {
-                    listener.onUsernameExists(true);
-                } else {
-                    listener.onUsernameExists(false);
-                }
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                listener.onUsernameExists(false);
+    public void createUser(UserEntity user) {
+        userDAO.createUser(user, isSuccess -> {
+            if (isSuccess) {
+            } else {
             }
         });
     }
-    public interface OnCheckUsernameListener {
-        void onUsernameExists(boolean usernameExists);
-    }
+
 }

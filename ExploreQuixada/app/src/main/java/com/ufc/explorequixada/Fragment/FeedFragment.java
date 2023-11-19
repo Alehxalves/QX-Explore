@@ -14,6 +14,7 @@ import android.widget.EditText;
 import com.google.firebase.auth.FirebaseUser;
 import com.ufc.explorequixada.Controller.PostController;
 import com.ufc.explorequixada.Controller.UserController;
+import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
 import com.ufc.explorequixada.Utils.UserViewModel;
 

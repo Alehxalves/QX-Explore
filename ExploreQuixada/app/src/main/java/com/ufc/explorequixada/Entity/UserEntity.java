@@ -1,24 +1,33 @@
 package com.ufc.explorequixada.Entity;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class UserEntity {
 
-    private UUID id;
+    private String id;
     private String username;
     private String email;
     private String password;
-    public UserEntity(String username, String email, String password) {
-        this.id = UUID.randomUUID();
+
+    private String profileImageUrl;
+
+    private ArrayList<PostEntity> posts;
+    public UserEntity(String username, String email, String password, String profileImageUrl) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profileImageUrl = profileImageUrl;
     }
 
-    public UserEntity(){this.id = UUID.randomUUID();};
+    public UserEntity(){};
 
-    public UUID getId() {
+    public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     public String getUsername() {
         return username;
@@ -42,6 +51,22 @@ public class UserEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public ArrayList<PostEntity> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(ArrayList<PostEntity> posts) {
+        this.posts = posts;
     }
 
     @Override
