@@ -8,19 +8,23 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Fragment.FeedFragment;
 import com.ufc.explorequixada.Fragment.HomeFragment;
 import com.ufc.explorequixada.Fragment.ProfileFragment;
 import com.ufc.explorequixada.Fragment.FriendListFragment;
 import com.ufc.explorequixada.R;
+import com.ufc.explorequixada.Repository.UserDAO;
 import com.ufc.explorequixada.Utils.UserViewModel;
 import com.ufc.explorequixada.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
-
+    UserDAO userDAO;
     FirebaseAuth auth;
     UserViewModel userViewModel;
     ActivityMainBinding binding;
@@ -28,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userDAO = new UserDAO();
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         replaceFragment(new HomeFragment());

@@ -45,8 +45,6 @@ public class FeedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
-
-        editTextPost = view.findViewById(R.id.editTextPost);
         bntPost = view.findViewById(R.id.bntPost);
 
 

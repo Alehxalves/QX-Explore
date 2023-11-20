@@ -9,7 +9,7 @@ public interface UserInterface{
 
     boolean updateUser(UserEntity user);
 
-    UserEntity findByUsername(String username);
+    UserEntity findByEmail(String email, final UserDAO.OnUserFindedListener listener);
 
     boolean deleteById(String id);
 

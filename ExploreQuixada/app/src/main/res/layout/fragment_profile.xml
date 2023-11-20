@@ -14,7 +14,6 @@
         android:layout_gravity="center_horizontal"
         android:contentDescription="@string/profile_image" />
 
-
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Username"
+            android:text=""
             android:textSize="24sp"
             android:textStyle="bold"
            />
@@ -37,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textSize="18dp"
-            android:text="Friends: 0" />
+            android:text="Amigos: 0" />
 
         <TextView
             android:id="@+id/postCount"
@@ -47,7 +46,15 @@
             android:textSize="18dp"
             android:text="Posts: 0" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"/>
+
     </androidx.appcompat.widget.LinearLayoutCompat>
+
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"

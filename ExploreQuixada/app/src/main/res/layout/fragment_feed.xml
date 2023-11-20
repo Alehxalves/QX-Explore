@@ -1,39 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     android:layout_height="match_parent"
     tools:context=".Fragment.FeedFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="FEED"
-        android:textSize="26dp"
-        tools:layout_editor_absoluteX="175dp"
-        tools:layout_editor_absoluteY="70dp" />
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:layout_height="150dp">
 
-    <Button
-        android:id="@+id/bntPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Postar"
-        tools:layout_editor_absoluteX="125dp"
-        tools:layout_editor_absoluteY="259dp"
-        tools:ignore="MissingConstraints" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/username"
 
-    <EditText
-        android:id="@+id/editTextPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="177dp"
-        tools:ignore="MissingConstraints" />
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:hint="Novo post"
+            android:singleLine="false" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnPointMap"
+                android:layout_width="66dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="5dp"
+                android:text=""
+                app:icon="@drawable/map_point"
+                app:layout_constraintBottom_toBottomOf="parent"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/teste"
+                android:layout_width="66dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="5dp"
+                android:text=""
+                app:icon="@drawable/img"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnPointMap"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/bntPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:text="Postar"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteY="-1dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
 </LinearLayout>
