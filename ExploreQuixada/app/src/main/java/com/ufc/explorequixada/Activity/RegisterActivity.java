@@ -50,7 +50,7 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         userController = new UserController();
 
-        editTextEmail = findViewById(R.id.email);
+        editTextEmail = findViewById(R.id.userName);
         editTextUsername = findViewById(R.id.username);
         editTextPassword = findViewById(R.id.password);
         btnRegister = findViewById(R.id.btnRegister);

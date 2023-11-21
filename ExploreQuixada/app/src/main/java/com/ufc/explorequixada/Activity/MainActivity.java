@@ -55,10 +55,9 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new HomeFragment());
             } else if (itemId == R.id.feed) {
                 replaceFragment(new FeedFragment());
-
             } else if (itemId == R.id.friendList) {
                 replaceFragment(new FriendListFragment());
-            }else if (itemId == R.id.profile) {
+            } else if (itemId == R.id.profile) {
                 replaceFragment(new ProfileFragment());
             }
             return true;

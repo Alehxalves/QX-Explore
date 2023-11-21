@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        editTextEmail = findViewById(R.id.email);
+        editTextEmail = findViewById(R.id.userName);
         editTextPassword = findViewById(R.id.password);
         btnLogin = findViewById(R.id.btnLogin);
         progressBar = findViewById(R.id.progressBar);
