@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -13,11 +14,17 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Fragment.FeedFragment;
 import com.ufc.explorequixada.Fragment.HomeFragment;
 import com.ufc.explorequixada.Fragment.ProfileFragment;
 import com.ufc.explorequixada.Fragment.FriendListFragment;
+import com.ufc.explorequixada.Fragment.SettingsFragment;
 import com.ufc.explorequixada.R;
 import com.ufc.explorequixada.Repository.UserDAO;
 import com.ufc.explorequixada.Utils.UserViewModel;
@@ -28,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth auth;
     UserViewModel userViewModel;
     ActivityMainBinding binding;
+    private DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +46,13 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(new HomeFragment());
 
         auth = FirebaseAuth.getInstance();
+        userRef = (FirebaseDatabase.getInstance().getReference().child("Users"));
         FirebaseUser loggedUer = auth.getCurrentUser();
 
         if(loggedUer == null) {
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(intent);
-            finish();
+            LoginStart();
+        } else {
+            CheckUserExist();
         }
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
@@ -62,6 +71,35 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+    }
+
+    private void CheckUserExist() {
+        final String user_id = auth.getCurrentUser().getUid();
+
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.hasChild(user_id)) {
+                    sendToSetup();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        }
+
+    private void sendToSetup() {
+        replaceFragment(new SettingsFragment());
+    }
+
+    private void LoginStart() {
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void replaceFragment(Fragment fragment) {

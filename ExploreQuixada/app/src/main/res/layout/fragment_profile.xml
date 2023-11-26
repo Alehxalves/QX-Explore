@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
     <ImageView
-        android:id="@+id/profileImage"
+        android:id="@+id/setProfileImage"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:src="@drawable/default_image_profile"
-        android:scaleType="centerCrop"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="@string/profile_image" />
+        android:contentDescription="@string/profile_image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_image_profile" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/username"
@@ -27,47 +29,61 @@
             android:layout_marginTop="16dp"
             android:text=""
             android:textSize="24sp"
-            android:textStyle="bold"
-           />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/friendCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textSize="18dp"
-            android:text="Amigos: 0" />
+            android:text="Amigos: 0"
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/postCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textSize="18dp"
-            android:text="Posts: 0" />
+            android:text="Posts: 0"
+            android:textSize="18dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
-            android:visibility="gone"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"/>
+            android:paddingTop="16dp"
+            android:visibility="gone" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:translationY='100dp'>
+        android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/btnLogout"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sair" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/btnEditProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Editar" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sair" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
 

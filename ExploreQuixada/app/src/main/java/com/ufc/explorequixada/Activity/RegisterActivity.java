@@ -20,13 +20,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ufc.explorequixada.Controller.UserController;
 import com.ufc.explorequixada.Entity.UserEntity;
+import com.ufc.explorequixada.Fragment.SettingsFragment;
 import com.ufc.explorequixada.R;
 
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private UserController userController;
-    private TextInputEditText editTextEmail, editTextUsername, editTextPassword;
+    private TextInputEditText editTextEmail, editTextPassword;
     private TextView loginNow;
     private Button btnRegister;
     private ProgressBar progressBar;
@@ -51,7 +52,6 @@ public class RegisterActivity extends AppCompatActivity {
         userController = new UserController();
 
         editTextEmail = findViewById(R.id.userName);
-        editTextUsername = findViewById(R.id.username);
         editTextPassword = findViewById(R.id.password);
         btnRegister = findViewById(R.id.btnRegister);
         progressBar = findViewById(R.id.progressBar);
@@ -72,23 +72,27 @@ public class RegisterActivity extends AppCompatActivity {
         });;
     }
 
+    private void goToLoginActivity() {
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     public void register() {
         String email, username, password;
         email = String.valueOf(editTextEmail.getText());
-        username = String.valueOf(editTextUsername.getText());
         password = String.valueOf(editTextPassword.getText());
 
-        if (!checkEmptyFields(email, username, password)){
+        if (!checkEmptyFields(email, password)){
             progressBar.setVisibility(View.VISIBLE);
             btnRegister.setVisibility(View.GONE);
-            createUser(email, password,username);
+            createUser(email, password);
         }
     }
 
-    public void createUser(String email,String password, String username) {
+    public void createUser(String email,String password) {
         UserEntity user = new UserEntity();
         user.setEmail(email);
-        user.setUsername(username);
         user.setPassword(password);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -100,7 +104,7 @@ public class RegisterActivity extends AppCompatActivity {
                             userController.createUser(user);
                             Toast.makeText(RegisterActivity.this, "Cadastro bem sucedido.",
                                     Toast.LENGTH_SHORT).show();
-                            goToLoginActivity();
+                            goToMainActivity();
                         } else {
                             Toast.makeText(RegisterActivity.this, "Ocorreu um erro durante o cadastro.",
                                     Toast.LENGTH_SHORT).show();
@@ -110,23 +114,20 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    public void goToLoginActivity() {
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+    public void goToMainActivity() {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
         finish();
     }
 
-    public boolean checkEmptyFields(String email, String username, String password) {
-        if(TextUtils.isEmpty(email) && TextUtils.isEmpty(username) && TextUtils.isEmpty(password) ) {
+    public boolean checkEmptyFields(String email, String password) {
+        if(TextUtils.isEmpty(email) && TextUtils.isEmpty(password) ) {
             Toast.makeText(RegisterActivity.this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show();
             return true;
         } else if(TextUtils.isEmpty(email)) {
             Toast.makeText(RegisterActivity.this, "Por favor, coloque seu email.", Toast.LENGTH_SHORT).show();
             return true;
-        } else if(TextUtils.isEmpty(username)) {
-            Toast.makeText(RegisterActivity.this, "Por favor, coloque seu nome de usuário.", Toast.LENGTH_SHORT).show();
-            return true;
-        }else if(TextUtils.isEmpty(password)) {
+        } else if(TextUtils.isEmpty(password)) {
             Toast.makeText(RegisterActivity.this, "Por favor, coloque uma senha.", Toast.LENGTH_SHORT).show();
             return true;
         } else if(password.length() < 6){
