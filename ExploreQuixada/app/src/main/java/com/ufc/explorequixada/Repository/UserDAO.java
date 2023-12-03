@@ -74,6 +74,32 @@ public class UserDAO implements UserInterface{
         return null;
     }
 
+    public UserEntity findByUsername(String username, final OnUserFindedListener listener) {
+        usersCollection
+                .whereEqualTo("username", username)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            UserEntity user = documentSnapshot.toObject(UserEntity.class);
+                            if (listener != null) {
+                                listener.onUserFinded(user);
+                            }
+                            return;
+                        }
+                    }
+                    if (listener != null) {
+                        listener.onUserFinded(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onUserFinded(null);
+                    }
+                });
+        return null;
+    }
+
     @Override
     public boolean deleteById(String id) {
         return false;

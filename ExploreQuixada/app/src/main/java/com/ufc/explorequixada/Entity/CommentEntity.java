@@ -1,17 +1,18 @@
 package com.ufc.explorequixada.Entity;
 
-import java.util.ArrayList;
 import java.util.Date;
 
-public class PostEntity {
+public class CommentEntity {
+
     private String id;
+
+    private String postId;
     private String username;
     private String content;
     private Date date;
 
-    private ArrayList<CommentEntity> comments;
+    public CommentEntity() {
 
-    public PostEntity() {
     }
 
     public String getId() {
@@ -21,13 +22,20 @@ public class PostEntity {
     public void setId(String id) {
         this.id = id;
     }
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String userEmail) {
-        this.username = userEmail;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getContent() {
@@ -44,13 +52,5 @@ public class PostEntity {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public ArrayList<CommentEntity> getComments() {
-        return comments;
-    }
-
-    public void setComments(ArrayList<CommentEntity> comments) {
-        this.comments = comments;
     }
 }

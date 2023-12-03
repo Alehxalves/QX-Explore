@@ -20,17 +20,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ufc.explorequixada.Controller.UserController;
 import com.ufc.explorequixada.Entity.UserEntity;
-import com.ufc.explorequixada.Fragment.SettingsFragment;
+//import com.ufc.explorequixada.Fragment.SettingsFragment;
 import com.ufc.explorequixada.R;
+import com.ufc.explorequixada.Repository.UserDAO;
 
 public class RegisterActivity extends AppCompatActivity {
-    private FirebaseAuth mAuth;
-
-    private UserController userController;
-    private TextInputEditText editTextEmail, editTextPassword;
-    private TextView loginNow;
-    private Button btnRegister;
-    private ProgressBar progressBar;
+    FirebaseAuth mAuth;
+    UserDAO userDAO;
+    TextInputEditText editTextEmail, editTextUsername, editTextPassword;
+    TextView loginNow;
+    Button btnRegister;
+    ProgressBar progressBar;
 
     @Override
     public void onStart() {
@@ -49,9 +49,10 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth=FirebaseAuth.getInstance();
-        userController = new UserController();
+        userDAO = new UserDAO();
 
-        editTextEmail = findViewById(R.id.userName);
+        editTextEmail = findViewById(R.id.email);
+        editTextUsername = findViewById(R.id.username);
         editTextPassword = findViewById(R.id.password);
         btnRegister = findViewById(R.id.btnRegister);
         progressBar = findViewById(R.id.progressBar);
@@ -81,34 +82,49 @@ public class RegisterActivity extends AppCompatActivity {
     public void register() {
         String email, username, password;
         email = String.valueOf(editTextEmail.getText());
+        username = String.valueOf(editTextUsername.getText());
         password = String.valueOf(editTextPassword.getText());
 
+        UserEntity user = new UserEntity();
+        user.setEmail(email);
+        user.setUsername(username);
+        user.setPassword(password);
+
         if (!checkEmptyFields(email, password)){
-            progressBar.setVisibility(View.VISIBLE);
-            btnRegister.setVisibility(View.GONE);
-            createUser(email, password);
+            verifyDuplicate(user);
         }
     }
 
-    public void createUser(String email,String password) {
-        UserEntity user = new UserEntity();
-        user.setEmail(email);
-        user.setPassword(password);
-        mAuth.createUserWithEmailAndPassword(email, password)
+    public void createUser(UserEntity user) {
+        progressBar.setVisibility(View.VISIBLE);
+        btnRegister.setVisibility(View.GONE);
+        mAuth.createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressBar.setVisibility(View.GONE);
                         btnRegister.setVisibility(View.VISIBLE);
                         if (task.isSuccessful()) {
-                            userController.createUser(user);
-                            Toast.makeText(RegisterActivity.this, "Cadastro bem sucedido.",
-                                    Toast.LENGTH_SHORT).show();
+                            userDAO.createUser(user, new UserDAO.OnUserCreatedListener() {
+                                @Override
+                                public void onUserCreated(boolean isSuccess) {
+                                    if(isSuccess) {
+                                        Toast.makeText(RegisterActivity.this, "Cadastro bem sucedido.",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(RegisterActivity.this, "Ocorreu um erro durante o cadastro.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    progressBar.setVisibility(View.GONE);
+                                    btnRegister.setVisibility(View.VISIBLE);
+                                }
+                            });
                             goToMainActivity();
                         } else {
                             Toast.makeText(RegisterActivity.this, "Ocorreu um erro durante o cadastro.",
                                     Toast.LENGTH_SHORT).show();
-
+                            progressBar.setVisibility(View.GONE);
+                            btnRegister.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -118,6 +134,28 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public void verifyDuplicate(UserEntity user) {
+        userDAO.findByEmail(user.getEmail(), new UserDAO.OnUserFindedListener() {
+            @Override
+            public void onUserFinded(UserEntity userFinded) {
+                if (userFinded != null) {
+                    Toast.makeText(RegisterActivity.this, "Email já cadastrado", Toast.LENGTH_SHORT).show();
+                } else {
+                    userDAO.findByUsername(user.getUsername(), new UserDAO.OnUserFindedListener() {
+                        @Override
+                        public void onUserFinded(UserEntity userFinded) {
+                            if(userFinded != null) {
+                                Toast.makeText(RegisterActivity.this, "Nome de usuário já cadastrado", Toast.LENGTH_SHORT).show();
+                            }else{
+                                createUser(user);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public boolean checkEmptyFields(String email, String password) {

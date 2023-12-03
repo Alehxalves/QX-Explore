@@ -1,53 +1,75 @@
 package com.ufc.explorequixada.Fragment;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.ufc.explorequixada.Adapter.PostAdapter;
 import com.ufc.explorequixada.Controller.PostController;
-import com.ufc.explorequixada.Controller.UserController;
+import com.ufc.explorequixada.Entity.PostEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
-import com.ufc.explorequixada.Utils.UserViewModel;
+import com.ufc.explorequixada.Repository.PostDAO;
+import com.ufc.explorequixada.Utils.CurrentUserViewModel;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FeedFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class FeedFragment extends Fragment {
 
-    private UserViewModel userViewModel;
-    private UserController userController;
+    private CurrentUserViewModel currentUser;
     private PostController postController;
-    private FirebaseUser user;
+
+    private PostDAO postDAO;
+    private UserEntity user;
     private EditText editTextPost;
     private Button bntPost;
+
+    private RecyclerView recycleViewPosts;
+
+    private ArrayList<PostEntity> posts;
+    private PostAdapter postAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        user = userViewModel.getUser();
-        userController = new UserController();
-        postController = new PostController();
+        currentUser = new ViewModelProvider(requireActivity()).get(CurrentUserViewModel.class);
+
+        user = currentUser.getUser();
+        postDAO = new PostDAO();
+
+        postController = new PostController(this);
+        posts = new ArrayList<PostEntity>();
+        postAdapter = new PostAdapter(FeedFragment.this.getContext(),posts, user);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
+
         bntPost = view.findViewById(R.id.bntPost);
+        editTextPost = view.findViewById(R.id.postContent);
+        recycleViewPosts = view.findViewById(R.id.recycleViewPosts);
+        recycleViewPosts.setHasFixedSize(true);
+        recycleViewPosts.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
-
+        recycleViewPosts.setAdapter(postAdapter);
+        getPosts();
         bntPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,13 +80,34 @@ public class FeedFragment extends Fragment {
     }
 
     public void post() {
-//        //UserEntity user2 = userController.getUserByEmail(user.getEmail());
-//        PostEntity post = new PostEntity();
-//
-//        post.setTitle("Teste");
-//        post.setContent(editTextPost.getText().toString());
-//        post.setUserId(user2.getId());
-//
-//        postController.save(post);
+        PostEntity post = new PostEntity();
+
+        post.setContent(editTextPost.getText().toString());
+        post.setUsername(user.getUsername());
+
+        postDAO.newPost(post, new PostDAO.OnPostCreatedListener() {
+            @Override
+            public void onPostCreated(boolean isSuccess) {
+
+            }
+        });
+
+        editTextPost.setText(null);
+        getPosts();
     }
+
+    public void getPosts() {
+        postDAO.getAllPosts(new PostDAO.OnPostsLoadedListener() {
+            @Override
+            public void onPostsLoaded(List<PostEntity> loadedPosts) {
+                if (loadedPosts != null && !loadedPosts.isEmpty()) {
+                    posts.clear();
+                    posts.addAll(loadedPosts);
+                    postAdapter.notifyDataSetChanged();
+                } else {
+                }
+            }
+        });
+    }
+
 }

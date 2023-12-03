@@ -74,7 +74,6 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-
         profileImage = view.findViewById(R.id.setProfileImage);
         username = view.findViewById(R.id.username);
         postCount = view.findViewById(R.id.postCount);
@@ -87,7 +86,7 @@ public class ProfileFragment extends Fragment {
         btnEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editProfile(new SettingsFragment());
+                //editProfile(new SettingsFragment());
             }
         });
         btnLogout.setOnClickListener(new View.OnClickListener() {

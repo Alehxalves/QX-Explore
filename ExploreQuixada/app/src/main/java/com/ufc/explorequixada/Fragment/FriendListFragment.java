@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ufc.explorequixada.Activity.RegisterActivity;
 import com.ufc.explorequixada.Entity.AdapterView;
+import com.ufc.explorequixada.Entity.AdapterView;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
 
@@ -92,7 +93,7 @@ public class FriendListFragment extends Fragment {
         btnAddFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addFriend(new fragment_friend_add());
+                //addFriend(new fragment_friend_add());
             }
         });
 

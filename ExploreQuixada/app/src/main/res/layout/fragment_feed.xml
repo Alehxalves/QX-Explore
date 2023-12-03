@@ -15,7 +15,7 @@
         android:layout_height="150dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/username"
+            android:id="@+id/postContent"
 
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -67,6 +67,11 @@
 
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycleViewPosts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
 </LinearLayout>

@@ -30,10 +30,4 @@ public class UserController {
         });
     }
 
-    public UserEntity findByEmail(String email) {
-        UserEntity findedUser = new UserEntity();
-
-        return findedUser;
-    }
-
 }
