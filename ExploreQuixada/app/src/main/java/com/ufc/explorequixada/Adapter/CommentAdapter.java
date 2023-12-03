@@ -43,7 +43,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
     public void onBindViewHolder(@NonNull CommentAdapter.MyViewHolder holder, int position) {
         CommentEntity comment = this.comments.get(position);
 
-        if(comment.getUsername().equals(this.user.getUsername())) {
+        if(user != null && comment.getUsername().equals(this.user.getUsername())) {
             holder.username.setText("Eu");
         }else {
             holder.username.setText(comment.getUsername());

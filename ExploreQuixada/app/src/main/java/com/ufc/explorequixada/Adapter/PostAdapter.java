@@ -104,8 +104,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
             currentUser = getCurrentUser();
             currentPost = getCurrentPost();
 
-            UserEntity newUser = new UserEntity();
-
             username = itemView.findViewById(R.id.username);
             date = itemView.findViewById(R.id.date);
             content = itemView.findViewById(R.id.content);
@@ -113,13 +111,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
             btnComment = itemView.findViewById(R.id.btnComent);
             btnDeletePost = itemView.findViewById(R.id.btnDeletePost);
 
-            newUser.setUsername("kovacs");
-
             recyclerViewComment = itemView.findViewById(R.id.recycleViewComments);
             recyclerViewComment.setHasFixedSize(true);
             recyclerViewComment.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
 
-            commentAdapter = new CommentAdapter(itemView.getContext(),comments, newUser);
+            commentAdapter = new CommentAdapter(itemView.getContext(),comments, currentUser);
             recyclerViewComment.setAdapter(commentAdapter);
 
             btnComment.setOnClickListener(new View.OnClickListener() {
