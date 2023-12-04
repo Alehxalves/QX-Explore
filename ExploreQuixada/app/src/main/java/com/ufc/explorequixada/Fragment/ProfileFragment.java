@@ -1,6 +1,7 @@
 package com.ufc.explorequixada.Fragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ufc.explorequixada.Activity.LoginActivity;
@@ -45,8 +47,8 @@ public class ProfileFragment extends Fragment {
     private UserDAO userDAO;
     private UserViewModel userViewModel;
     private FirebaseUser loggedUser;
-    private DatabaseReference userRef;
-    private StorageReference UserProfileImageRef;
+    //private DatabaseReference userRef;
+    private FirebaseFirestore userRef;
     private FirebaseAuth mAuth;
     private Button btnLogout;
     private Button btnEditProfile;
@@ -63,9 +65,7 @@ public class ProfileFragment extends Fragment {
         userDAO = new UserDAO();
 
         mAuth = FirebaseAuth.getInstance();
-        userRef = FirebaseDatabase.getInstance().getReference().child("Users")
-                .child(loggedUser.getUid()).child("name");
-        UserProfileImageRef = FirebaseStorage.getInstance().getReference().child("profileImage");
+        userRef = FirebaseFirestore.getInstance();
 
     }
 
@@ -120,7 +120,18 @@ public class ProfileFragment extends Fragment {
             public void onUserFinded(UserEntity user) {
                 if (user != null) {
 
-                    userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    userRef.collection("users").document(loggedUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<com.google.firebase.firestore.DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<com.google.firebase.firestore.DocumentSnapshot> task) {
+                            if(task.isSuccessful()) {
+                                com.google.firebase.firestore.DocumentSnapshot snapshot = task.getResult();
+                                String text = snapshot.getString("username");
+                                username.setText(text);
+                            }
+                        }
+                    });
+
+                    /*userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                        @Override
                        public void onComplete(@NonNull Task<DataSnapshot> task) {
                            if(task.isSuccessful()) {
@@ -129,9 +140,21 @@ public class ProfileFragment extends Fragment {
                                username.setText(text);
                            }
                        }
+                    });*/
+
+                    userRef.collection("users").document(loggedUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<com.google.firebase.firestore.DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<com.google.firebase.firestore.DocumentSnapshot> task) {
+                            if(task.isSuccessful()) {
+                                com.google.firebase.firestore.DocumentSnapshot snapshot = task.getResult();
+                                //String text = snapshot.getString("profileImage");
+                                Uri uri = (Uri) snapshot.getData().get("profileImage");
+                                Glide.with(requireContext()).load(uri).into(profileImage);
+                            }
+                        }
                     });
 
-                    UserProfileImageRef.child(loggedUser.getUid() + ".jpg").getDownloadUrl().addOnCompleteListener(new OnCompleteListener<android.net.Uri>() {
+                    /*UserProfileImageRef.child(loggedUser.getUid() + ".jpg").getDownloadUrl().addOnCompleteListener(new OnCompleteListener<android.net.Uri>() {
                         @Override
                         public void onComplete(@NonNull Task<android.net.Uri> task) {
                             if(task.isSuccessful()) {
@@ -139,7 +162,7 @@ public class ProfileFragment extends Fragment {
                                 Glide.with(requireContext()).load(uri).into(profileImage);
                             }
                         }
-                    });
+                    });*/
 
                     //profileImage.setImageResource(loggedUser.getPhotoUrl().hashCode());
                     progressBar.setVisibility(View.GONE);

@@ -13,11 +13,15 @@ public class UserEntity {
     private String profileImageUrl;
 
     private ArrayList<PostEntity> posts;
+	private ArrayList<UserEntity> friends;
+	private int postCount;
+	private int friendCount;
     public UserEntity(String username, String email, String password, String profileImageUrl) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.profileImageUrl = profileImageUrl;
+		this.friends = new ArrayList<UserEntity>();
     }
 
     public UserEntity(){};
@@ -69,7 +73,31 @@ public class UserEntity {
         this.posts = posts;
     }
 
-    @Override
+	public ArrayList<UserEntity> getFriends() {
+		return friends;
+	}
+
+	public void setFriends(ArrayList<UserEntity> friends) {
+		this.friends = friends;
+	}
+
+	public int getPostCount() {
+		return postCount;
+	}
+
+	public void setPostCount(int postCount) {
+		this.postCount = postCount;
+	}
+
+	public int getFriendCount() {
+		return friendCount;
+	}
+
+	public void setFriendCount(int friendCount) {
+		this.friendCount = friendCount;
+	}
+
+	@Override
     public String toString() {
         return "User{" +
                 ", name='" + username + '\'' +

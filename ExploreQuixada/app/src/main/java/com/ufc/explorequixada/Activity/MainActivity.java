@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
         if(loggedUer == null) {
             LoginStart();
-        } else {
-            CheckUserExist();
         }
 
 
@@ -100,25 +98,6 @@ public class MainActivity extends AppCompatActivity {
         });
         currentUserViewModel.setUser(currentUser);
     }
-
-    private void CheckUserExist() {
-        final String user_id = auth.getCurrentUser().getUid();
-
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChild(user_id)) {
-                    sendToSetup();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        }
 
     private void sendToSetup() {
         replaceFragment(new SettingsFragment());

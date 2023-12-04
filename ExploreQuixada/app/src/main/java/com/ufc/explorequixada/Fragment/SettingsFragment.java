@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.canhub.cropper.CropImage;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
@@ -38,6 +39,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -57,8 +60,9 @@ public class SettingsFragment extends Fragment {
 	private ImageView userProfile;
 
 	private FirebaseAuth mAuth;
-	private DatabaseReference userRef;
-	private StorageReference UserProfileImageRef;
+	//private DatabaseReference userRef;
+	//private StorageReference UserProfileImageRef;
+	private FirebaseFirestore userRef;
 
 	final static int Gallery_Pick = 1;
 	String currentUserID;
@@ -69,11 +73,7 @@ public class SettingsFragment extends Fragment {
 
 		mAuth = FirebaseAuth.getInstance();
 		currentUserID = mAuth.getCurrentUser().getUid();
-		userRef = FirebaseDatabase.getInstance().getReference()
-				.child("Users").child(currentUserID);
-		UserProfileImageRef = FirebaseStorage.getInstance()
-				.getReference()
-				.child("profileImage").child(currentUserID + ".jpg");
+		userRef = FirebaseFirestore.getInstance();
 
 		userName = (EditText) view.findViewById(R.id.setupName);
 		//password = (EditText) view.findViewById(R.id.setupPassword);
@@ -142,13 +142,25 @@ public class SettingsFragment extends Fragment {
 
 
 	private void uploadImage(Uri imageUri, boolean imageAdded) {
-		final String imageName = currentUserID + ".jpg";
 		if(imageAdded != false && imageUri != null) {
+			String downloadUrl = imageUri.toString();
+			userRef.collection("users").document(currentUserID).update("profileImageUrl", downloadUrl).addOnCompleteListener(task -> {
+				if(task.isSuccessful()) {
+					updateImage(imageUri);
+					Toast.makeText(getActivity(), "Imagem salva com sucesso", Toast.LENGTH_SHORT).show();
+				} else {
+					String message = task.getException().getMessage();
+					Toast.makeText(getActivity(), "Erro: " + message, Toast.LENGTH_SHORT).show();
+				}
+			});
+		}
+
+		/*if(imageAdded != false && imageUri != null) {
 			StorageReference fileRef = UserProfileImageRef.child(imageName);
 			fileRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
 				fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
 					String downloadUrl = uri.toString();
-					userRef.child("profileImage").setValue(downloadUrl).addOnCompleteListener(task -> {
+					userRef.collection("users").document(currentUserID).update("profileImageUrl", downloadUrl).addOnCompleteListener(task -> {
 						if(task.isSuccessful()) {
 							Toast.makeText(getActivity(), "Imagem salva com sucesso", Toast.LENGTH_SHORT).show();
 						} else {
@@ -160,7 +172,17 @@ public class SettingsFragment extends Fragment {
 			});
 		} else {
 			Toast.makeText(getActivity(), "Por favor, selecione uma imagem", Toast.LENGTH_SHORT).show();
-		}
+		}*/
+	}
+
+	private void updateImage(Uri imageUri) {
+		userRef.collection("users").document(currentUserID).get().addOnCompleteListener(task -> {
+			if(task.isSuccessful()) {
+				com.google.firebase.firestore.DocumentSnapshot snapshot = task.getResult();
+				String text = snapshot.getString("profileImageUrl");
+				Glide.with(requireContext()).load(text).into(userProfile);
+			}
+		});
 	}
 
 	//TENTATIVA DE USAR UM CROP NAS IMAGENS, IGNORAR!!
@@ -265,10 +287,19 @@ public class SettingsFragment extends Fragment {
 			return;
 		}*/ else {
 			HashMap userMap = new HashMap();
-			userMap.put("name", name);
+			userMap.put("username", name);
 			//userMap.put("password", pass);
 
-			userRef.updateChildren(userMap).addOnCompleteListener(new OnCompleteListener() {
+			userRef.collection("users").document(currentUserID).update(userMap).addOnCompleteListener(task -> {
+				if(task.isSuccessful()) {
+					Toast.makeText(getActivity(), "Informações atualizadas com sucesso", Toast.LENGTH_SHORT).show();
+					returnProfile(new ProfileFragment());
+				} else {
+					Toast.makeText(getActivity(), "Erro ao atualizar informações", Toast.LENGTH_SHORT).show();
+				}
+			});
+
+			/*userRef.updateChildren(userMap).addOnCompleteListener(new OnCompleteListener() {
 				@Override
 				public void onComplete(@NonNull Task task) {
 					if(task.isSuccessful()) {
@@ -278,7 +309,7 @@ public class SettingsFragment extends Fragment {
 						Toast.makeText(getActivity(), "Erro ao atualizar informações", Toast.LENGTH_SHORT).show();
 					}
 				}
-			});
+			});*/
 
 		}
 	}
