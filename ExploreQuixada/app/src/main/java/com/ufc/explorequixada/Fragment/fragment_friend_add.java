@@ -80,8 +80,9 @@ public class fragment_friend_add extends Fragment {
 	private void friendAdd(String toString) {
 		String friend = toString;
 
+		UserEntity friendUser = referenceName(friend);
 
-		/*friendDAO.addFriend(friend, new FriendDAO.OnFriendAddedListener() {
+		friendDAO.addFriend(friendUser, new FriendDAO.OnFriendAddedListener() {
 			@Override
 			public void onFriendAdded(boolean isAdded) {
 				if(isAdded) {
@@ -91,7 +92,21 @@ public class fragment_friend_add extends Fragment {
 					Toast.makeText(getContext(), "Erro ao adicionar amigo!", Toast.LENGTH_SHORT).show();
 				}
 			}
-		});*/
+		});
+	}
+
+	private UserEntity referenceName(String friend) {
+		reference.collection("users").whereEqualTo("username", friend).get().addOnSuccessListener(queryDocumentSnapshots -> {
+			if(!queryDocumentSnapshots.isEmpty()) {
+				for(UserEntity documentSnapshot : queryDocumentSnapshots.toObjects(UserEntity.class)) {
+					FriendEntity friendEntity = new FriendEntity();
+					friendEntity.setName(documentSnapshot.getUsername());
+					friendEntity.setId(documentSnapshot.getId());
+					return;
+				}
+			}
+		});
+		return null;
 	}
 
 	public void returnFriend(Fragment fragment) {
