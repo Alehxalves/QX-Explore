@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,33 +19,56 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.ufc.explorequixada.Activity.RegisterActivity;
+import com.ufc.explorequixada.Adapter.PostAdapter;
+import com.ufc.explorequixada.Adapter.UserAdapter;
 import com.ufc.explorequixada.Entity.AdapterView;
 import com.ufc.explorequixada.Entity.AdapterView;
+import com.ufc.explorequixada.Entity.FriendEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
+import com.ufc.explorequixada.Repository.FriendDAO;
+import com.ufc.explorequixada.Utils.CurrentUserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class FriendListFragment extends Fragment {
-    DatabaseReference reference;
-    AdapterView adapter;
-    List<UserEntity> users;
+    FirebaseFirestore reference;
+    private ArrayList<UserEntity> friends;
+    private UserEntity user;
 
+    private FriendDAO friendDAO;
     private Button btnAddFriend;
     private Button btnSearch;
     private EditText searchInput;
 
     private RecyclerView searchResultList;
+    private UserAdapter userAdapter;
+    private CurrentUserViewModel currentUser;
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        currentUser = new ViewModelProvider(requireActivity()).get(CurrentUserViewModel.class);
+
+        user = new UserEntity();
+        friendDAO = new FriendDAO();
+
+        userAdapter = new UserAdapter(getContext(), friends, user);
+        friends = new ArrayList<UserEntity>();
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friend_list, container, false);
@@ -54,30 +78,10 @@ public class FriendListFragment extends Fragment {
         searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
         searchResultList.hasFixedSize();
 
-        reference = FirebaseDatabase.getInstance().getReference().child("Users");
+        reference = FirebaseFirestore.getInstance();
+        searchResultList.setAdapter(userAdapter);
+        getFriends();
 
-        users = new ArrayList<>();
-        adapter = new AdapterView(getContext(), users);
-        searchResultList.setAdapter(adapter);
-
-        /*reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(searchInput.getText().toString().equals("")) {
-                    users.clear();
-                    for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        UserEntity user = dataSnapshot.getValue(UserEntity.class);
-                        users.add(user);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });*/
 
         btnSearch = view.findViewById(R.id.btnSearch);
         btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -93,31 +97,41 @@ public class FriendListFragment extends Fragment {
         btnAddFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //addFriend(new fragment_friend_add());
+                addFriend(new fragment_friend_add());
             }
         });
-
-        /*searchResultList = (RecyclerView) view.findViewById(R.id.friend_search_list);
-        searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
-        searchResultList.setAdapter(new AdapterView(getContext(), new ArrayList<UserEntity>()));
-
-        searchInput = view.findViewById(R.id.searchBar);*/
 
         return view;
     }
 
-    private void SearchFriends(String searchResult) {
-
-        for(UserEntity user : users) {
-            if(user.getUsername().equals(searchResult)) {
-                users.clear();
-                users.add(user);
-                adapter.notifyDataSetChanged();
+    private void getFriends() {
+        friendDAO.getAllFriends(new FriendDAO.OnFriendFindedListener() {
+            @Override
+            public void onFriendFinded(List<FriendEntity> friends) {
+                if(friends != null && !friends.isEmpty()) {
+                    friends.clear();
+                    friends.addAll(friends);
+                    userAdapter.notifyDataSetChanged();
+                }
             }
-        }
+        });
+    }
 
-
-
+    private void SearchFriends(String searchResult) {
+        friendDAO.getAllFriends(new FriendDAO.OnFriendFindedListener() {
+            @Override
+            public void onFriendFinded(List<FriendEntity> friends) {
+                if(friends != null && !friends.isEmpty() && friends.contains(searchResult)) {
+                    friends.clear();
+                    friends.addAll(friends);
+                    userAdapter.notifyDataSetChanged();
+                } else {
+                    friends.clear();
+                    Toast.makeText(getContext(), "Usuário não encontrado", Toast.LENGTH_SHORT).show();
+                    userAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
 

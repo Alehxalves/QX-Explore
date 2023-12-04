@@ -9,14 +9,18 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Interface.UserInterface;
+
+import java.util.List;
 
 public class UserDAO implements UserInterface{
 
@@ -100,6 +104,31 @@ public class UserDAO implements UserInterface{
         return null;
     }
 
+    public void getAllUsers(final OnUsersLoadedListener listener) {
+        usersCollection.orderBy("name", Query.Direction.DESCENDING).addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@NonNull QuerySnapshot value, com.google.firebase.firestore.FirebaseFirestoreException error) {
+                if(error != null){
+                    if (listener != null) {
+                        listener.onUsersLoaded(null);
+                    }
+                    return;
+                }
+
+                List<UserEntity> users = value.toObjects(UserEntity.class);
+                for(DocumentChange dc : value.getDocumentChanges()){
+                    if(dc.getType() == DocumentChange.Type.ADDED){
+                        users.add(dc.getDocument().toObject(UserEntity.class));
+                    }
+                }
+
+                if (listener != null) {
+                    listener.onUsersLoaded(users);
+                }
+            }
+        });
+    }
+
     @Override
     public boolean deleteById(String id) {
         return false;
@@ -111,5 +140,9 @@ public class UserDAO implements UserInterface{
 
     public interface OnUserFindedListener {
         void onUserFinded(UserEntity user);
+    }
+
+    public interface OnUsersLoadedListener {
+        void onUsersLoaded(List<UserEntity> user);
     }
 }
