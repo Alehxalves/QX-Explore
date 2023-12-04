@@ -76,8 +76,27 @@ public class CommentDAO implements CommentInterface {
                 });
     }
 
+    public void deleteCommentById(String commentId, final CommentDAO.OnCommentDeletedListener listener) {
+        commentsCollection.document(commentId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    if (listener != null) {
+                        listener.onCommentDeleted(true);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onCommentDeleted(false);
+                    }
+                });
+    }
+
     public interface OnCommentCreatedListener {
         void onCommentCreated(boolean isSuccess);
+    }
+
+    public interface OnCommentDeletedListener {
+        void onCommentDeleted(boolean isSuccess);
     }
 
     public interface OnCommentsLoadedListener {

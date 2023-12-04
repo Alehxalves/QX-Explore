@@ -53,18 +53,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
     @Override
     public PostAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(this.context).inflate(R.layout.post_item, parent, false);
-        return new MyViewHolder(view);
+        return new MyViewHolder(view, this.user);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         PostEntity currentPost = this.posts.get(position);
-        holder.setCurrentUser(this.user);
         holder.setCurrentPost(currentPost);
 
         if(currentPost.getUsername().equals(user.getUsername())) {
-            holder.btnDeletePost.setVisibility(View.VISIBLE);
             holder.username.setText("Eu");
+            holder.btnDeletePost.setVisibility(View.VISIBLE);
         }else {
             holder.btnDeletePost.setVisibility(View.GONE);
             holder.username.setText(currentPost.getUsername());
@@ -96,12 +95,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
         EditText editTextComment;
         UserEntity currentUser;
         PostEntity currentPost;
-        public MyViewHolder(@NonNull View itemView) {
+        public MyViewHolder(@NonNull View itemView, UserEntity user) {
             super(itemView);
             postDAO = new PostDAO();
             commentDAO = new CommentDAO();
             comments = new ArrayList<CommentEntity>();
-            currentUser = getCurrentUser();
+            currentUser = user;
             currentPost = getCurrentPost();
 
             username = itemView.findViewById(R.id.username);
@@ -155,11 +154,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
 
             commentDAO.newComment(comment, isSuccess -> {
                 if(isSuccess){
-                    Toast.makeText(itemView.getContext(), "Postagem feita", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(itemView.getContext(), "Comentário feito.", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(itemView.getContext(), "Ocorreu um erro inesperado.", Toast.LENGTH_SHORT).show();
                 }
             });
+            editTextComment.setText(null);
+            getComments();
         }
 
         public void deletePost() {
@@ -174,15 +175,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
                 }
             });
         }
-
-
-        public void setCurrentUser(UserEntity user) {
-            currentUser = user;
-        }
-        public UserEntity getCurrentUser() {
-            return currentUser;
-        }
-
         public void setCurrentPost(PostEntity post) {
             currentPost = post;
         }
