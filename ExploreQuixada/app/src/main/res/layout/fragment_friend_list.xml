@@ -41,7 +41,7 @@
         android:orientation="horizontal">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/friend_search_list"
+            android:id="@+id/friendFindedResult"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

@@ -6,12 +6,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -28,9 +30,9 @@ import java.util.List;
 
 public class fragment_friend_add extends Fragment {
 
-	private Button btnFriendAdded;
+	private Button searchFriend;
 	private Button btnReturnFriendList;
-	private TextInputEditText txtFriendAdded;
+	private EditText txtFriendAdded;
 
 	private FirebaseFirestore reference;
 
@@ -38,6 +40,8 @@ public class fragment_friend_add extends Fragment {
 	private UserEntity user;
 	private CurrentUserViewModel currentUser;
 	private FriendDAO friendDAO;
+	private RecyclerView friendFindResult;
+	private UserAdapter userAdapter;
 
 
 	@Override
@@ -48,6 +52,7 @@ public class fragment_friend_add extends Fragment {
 		user = new UserEntity();
 		friendDAO = new FriendDAO();
 
+		userAdapter = new UserAdapter(getContext(), friends, user);
 		friends = new ArrayList<UserEntity>();
 	}
 
@@ -57,13 +62,24 @@ public class fragment_friend_add extends Fragment {
 		reference = FirebaseFirestore.getInstance();
 
 		btnReturnFriendList = view.findViewById(R.id.btnReturn);
-		btnFriendAdded = view.findViewById(R.id.btnConfirmarAddFriend);
 		txtFriendAdded = view.findViewById(R.id.userName);
+		searchFriend = view.findViewById(R.id.btnFindFriend);
+		friendFindResult = view.findViewById(R.id.SearchFriendResult);
 
-		btnFriendAdded.setOnClickListener(new View.OnClickListener() {
+		friendFindResult.setLayoutManager(new LinearLayoutManager(getContext()));
+		friendFindResult.hasFixedSize();
+		friendFindResult.setAdapter(userAdapter);
+
+		searchFriend.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				friendAdd(txtFriendAdded.getText().toString());
+				String friend = txtFriendAdded.getText().toString();
+				if(friend.isEmpty()) {
+					txtFriendAdded.setError("Campo vazio");
+					return;
+				} else {
+					findFriend(friend);
+				}
 			}
 		});
 
@@ -77,36 +93,19 @@ public class fragment_friend_add extends Fragment {
 		return view;
 	}
 
-	private void friendAdd(String toString) {
-		String friend = toString;
-
-		UserEntity friendUser = referenceName(friend);
-
-		friendDAO.addFriend(friendUser, new FriendDAO.OnFriendAddedListener() {
+	private void findFriend(String friend) {
+		friendDAO.findFriends(friend, new FriendDAO.OnFriendFindedListener() {
 			@Override
-			public void onFriendAdded(boolean isAdded) {
-				if(isAdded) {
-					Toast.makeText(getContext(), "Amigo adicionado com sucesso!", Toast.LENGTH_SHORT).show();
-					returnFriend(new FriendListFragment());
+			public void onFriendFinded(List<FriendEntity> friends) {
+				if(friends != null && !friends.isEmpty()) {
+					friends.clear();
+					friends.addAll(friends);
+					userAdapter.notifyDataSetChanged();
 				} else {
-					Toast.makeText(getContext(), "Erro ao adicionar amigo!", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getContext(), "Nenhum amigo encontrado", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
-	}
-
-	private UserEntity referenceName(String friend) {
-		reference.collection("users").whereEqualTo("username", friend).get().addOnSuccessListener(queryDocumentSnapshots -> {
-			if(!queryDocumentSnapshots.isEmpty()) {
-				for(UserEntity documentSnapshot : queryDocumentSnapshots.toObjects(UserEntity.class)) {
-					FriendEntity friendEntity = new FriendEntity();
-					friendEntity.setName(documentSnapshot.getUsername());
-					friendEntity.setId(documentSnapshot.getId());
-					return;
-				}
-			}
-		});
-		return null;
 	}
 
 	public void returnFriend(Fragment fragment) {

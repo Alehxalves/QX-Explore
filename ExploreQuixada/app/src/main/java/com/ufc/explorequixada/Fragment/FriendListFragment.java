@@ -1,10 +1,7 @@
 package com.ufc.explorequixada.Fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -17,26 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SearchView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.ufc.explorequixada.Activity.RegisterActivity;
-import com.ufc.explorequixada.Adapter.PostAdapter;
 import com.ufc.explorequixada.Adapter.UserAdapter;
-import com.ufc.explorequixada.Entity.AdapterView;
-import com.ufc.explorequixada.Entity.AdapterView;
+import com.ufc.explorequixada.Controller.UserController;
 import com.ufc.explorequixada.Entity.FriendEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
 import com.ufc.explorequixada.Repository.FriendDAO;
+import com.ufc.explorequixada.Repository.UserDAO;
 import com.ufc.explorequixada.Utils.CurrentUserViewModel;
 
 import java.util.ArrayList;
@@ -49,6 +35,7 @@ public class FriendListFragment extends Fragment {
     private UserEntity user;
 
     private FriendDAO friendDAO;
+    private UserDAO userDAO;
     private Button btnAddFriend;
     private Button btnSearch;
     private EditText searchInput;
@@ -56,6 +43,7 @@ public class FriendListFragment extends Fragment {
     private RecyclerView searchResultList;
     private UserAdapter userAdapter;
     private CurrentUserViewModel currentUser;
+    private UserController userController;
 
 
     @Override
@@ -65,7 +53,9 @@ public class FriendListFragment extends Fragment {
 
         user = new UserEntity();
         friendDAO = new FriendDAO();
+        userDAO = new UserDAO();
 
+        userController = new UserController(this);
         userAdapter = new UserAdapter(getContext(), friends, user);
         friends = new ArrayList<UserEntity>();
     }
@@ -73,15 +63,15 @@ public class FriendListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friend_list, container, false);
 
+        reference = FirebaseFirestore.getInstance();
+
         searchInput = view.findViewById(R.id.searchBar);
-        searchResultList = view.findViewById(R.id.friend_search_list);
+        searchResultList = view.findViewById(R.id.friendFindedResult);
+
         searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
         searchResultList.hasFixedSize();
-
-        reference = FirebaseFirestore.getInstance();
         searchResultList.setAdapter(userAdapter);
         getFriends();
-
 
         btnSearch = view.findViewById(R.id.btnSearch);
         btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -105,29 +95,27 @@ public class FriendListFragment extends Fragment {
     }
 
     private void getFriends() {
-        friendDAO.getAllFriends(new FriendDAO.OnFriendFindedListener() {
+        if(user.getFriends() != null) {
+            friendDAO.getAllFriends(new FriendDAO.OnFriendFindedListener() {
+                @Override
+                public void onFriendFinded(List<FriendEntity> friends) {
+                    if(friends != null && !friends.isEmpty()) {
+                        friends.clear();
+                        friends.addAll(friends);
+                        userAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
+        }
+    }
+
+    private void SearchFriends(String searchResult) {
+        friendDAO.findFriends(searchResult, new FriendDAO.OnFriendFindedListener() {
             @Override
             public void onFriendFinded(List<FriendEntity> friends) {
                 if(friends != null && !friends.isEmpty()) {
                     friends.clear();
                     friends.addAll(friends);
-                    userAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    private void SearchFriends(String searchResult) {
-        friendDAO.getAllFriends(new FriendDAO.OnFriendFindedListener() {
-            @Override
-            public void onFriendFinded(List<FriendEntity> friends) {
-                if(friends != null && !friends.isEmpty() && friends.contains(searchResult)) {
-                    friends.clear();
-                    friends.addAll(friends);
-                    userAdapter.notifyDataSetChanged();
-                } else {
-                    friends.clear();
-                    Toast.makeText(getContext(), "Usuário não encontrado", Toast.LENGTH_SHORT).show();
                     userAdapter.notifyDataSetChanged();
                 }
             }

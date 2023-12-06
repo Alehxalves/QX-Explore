@@ -24,22 +24,53 @@ public class FriendDAO implements FriendInterface {
 	private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 	private final CollectionReference friendCollection = db.collection("users");
 
-	@Override
-	public void addFriend(UserEntity user, final OnFriendAddedListener listener) {
-		DocumentReference newFriend = friendCollection.document();
-		user.setId(newFriend.getId());
+	public void findFriends(String username, final OnFriendFindedListener listener) {
 		friendCollection
-				.document(user.getId()).set(user)
-				.addOnSuccessListener(documentReference -> {
+				.whereEqualTo("username", username)
+				.orderBy("name", Query.Direction.DESCENDING)
+				.get()
+				.addOnSuccessListener(queryDocumentSnapshots -> {
+					if(!queryDocumentSnapshots.isEmpty()) {
+						List<FriendEntity> friends = new ArrayList<>();
+						for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+							friends.add(documentSnapshot.toObject(FriendEntity.class));
+						}
+						if(listener != null) {
+							listener.onFriendFinded(friends);
+						}
+						return;
+					}
 					if(listener != null) {
-						listener.onFriendAdded(true);
+						listener.onFriendFinded(Collections.emptyList());
 					}
 				})
 				.addOnFailureListener(e -> {
 					if(listener != null) {
-						listener.onFriendAdded(false);
+						listener.onFriendFinded(Collections.emptyList());
 					}
 				});
+	}
+
+	@Override
+	public void addFriend(UserEntity user, final OnFriendAddedListener listener) {
+		String name = user.getUsername();
+		findFriends(name, new OnFriendFindedListener() {
+			@Override
+			public void onFriendFinded(List<FriendEntity> friends) {
+				if(friends.isEmpty()) {
+					if(listener != null) {
+						listener.onFriendAdded(false);
+					}
+					return;
+				}
+
+				FriendEntity friend = friends.get(0);
+				friendCollection.document(friend.getId()).update("friends", user.getFriends());
+				if(listener != null) {
+					listener.onFriendAdded(true);
+				}
+			}
+		});
 	}
 
 	public void removeFriend(String username, final OnFriendRemovedListener listener) {

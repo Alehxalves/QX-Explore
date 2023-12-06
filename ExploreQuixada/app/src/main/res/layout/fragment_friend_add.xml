@@ -9,30 +9,40 @@
     android:paddingRight="8dp"
     android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/userName"
-            android:layout_width="match_parent"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnFindFriend"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Nome do usuário"
-            android:singleLine="true" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:clickable="true"
+            android:src="@android:drawable/ic_menu_search" />
+
+        <EditText
+            android:id="@+id/userName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="nome do usuario"
+            android:inputType="text" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/SearchFriendResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="400dp"
         android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnConfirmarAddFriend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            android:text="Adicionar" />
 
         <Button
             android:id="@+id/btnReturn"
