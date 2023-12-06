@@ -2,6 +2,7 @@ package com.ufc.explorequixada.Fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -31,7 +32,8 @@ import java.util.List;
 
 public class FriendListFragment extends Fragment {
     FirebaseFirestore reference;
-    private ArrayList<UserEntity> friends;
+    private ArrayList<FriendEntity> userFriends;
+    private ArrayList<UserEntity> users;
     private UserEntity user;
 
     private FriendDAO friendDAO;
@@ -45,20 +47,22 @@ public class FriendListFragment extends Fragment {
     private CurrentUserViewModel currentUser;
     private UserController userController;
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         currentUser = new ViewModelProvider(requireActivity()).get(CurrentUserViewModel.class);
 
-        user = new UserEntity();
+        user = currentUser.getUser();
         friendDAO = new FriendDAO();
         userDAO = new UserDAO();
 
         userController = new UserController(this);
-        userAdapter = new UserAdapter(getContext(), friends, user);
-        friends = new ArrayList<UserEntity>();
+        userFriends = new ArrayList<FriendEntity>();
+        userAdapter = new UserAdapter(getContext(), userFriends, user);
+
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friend_list, container, false);
@@ -68,10 +72,11 @@ public class FriendListFragment extends Fragment {
         searchInput = view.findViewById(R.id.searchBar);
         searchResultList = view.findViewById(R.id.friendFindedResult);
 
+        searchResultList.setHasFixedSize(true);
         searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
-        searchResultList.hasFixedSize();
+
         searchResultList.setAdapter(userAdapter);
-        getFriends();
+        //getFriends();
 
         btnSearch = view.findViewById(R.id.btnSearch);
         btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -96,16 +101,22 @@ public class FriendListFragment extends Fragment {
 
     private void getFriends() {
         if(user.getFriends() != null) {
-            friendDAO.getAllFriends(new FriendDAO.OnFriendFindedListener() {
-                @Override
-                public void onFriendFinded(List<FriendEntity> friends) {
-                    if(friends != null && !friends.isEmpty()) {
-                        friends.clear();
-                        friends.addAll(friends);
-                        userAdapter.notifyDataSetChanged();
+            for(UserEntity friend : user.getFriends()) {
+                String friendName = friend.getUsername();
+                userDAO.orderByUsername(friendName, new UserDAO.onFriendFindedListener() {
+                    @Override
+                    public void onFriendFinded(FriendEntity friend) {
+                        if(friend != null) {
+                            userFriends.clear();
+                            userFriends.add(friend);
+                            userAdapter.notifyDataSetChanged();
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            userFriends.clear();
+            userAdapter.notifyDataSetChanged();
         }
     }
 
@@ -114,8 +125,11 @@ public class FriendListFragment extends Fragment {
             @Override
             public void onFriendFinded(List<FriendEntity> friends) {
                 if(friends != null && !friends.isEmpty()) {
-                    friends.clear();
-                    friends.addAll(friends);
+                    userFriends.clear();
+                    userFriends.addAll(friends);
+                    userAdapter.notifyDataSetChanged();
+                } else {
+                    userFriends.clear();
                     userAdapter.notifyDataSetChanged();
                 }
             }

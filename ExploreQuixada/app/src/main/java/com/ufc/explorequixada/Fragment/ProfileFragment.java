@@ -86,7 +86,7 @@ public class ProfileFragment extends Fragment {
         btnEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //editProfile(new SettingsFragment());
+                editProfile(new SettingsFragment());
             }
         });
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -131,25 +131,13 @@ public class ProfileFragment extends Fragment {
                         }
                     });
 
-                    /*userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                       @Override
-                       public void onComplete(@NonNull Task<DataSnapshot> task) {
-                           if(task.isSuccessful()) {
-                               DataSnapshot snapshot = task.getResult();
-                               String text = snapshot.getValue(String.class);
-                               username.setText(text);
-                           }
-                       }
-                    });*/
-
                     userRef.collection("users").document(loggedUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<com.google.firebase.firestore.DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<com.google.firebase.firestore.DocumentSnapshot> task) {
                             if(task.isSuccessful()) {
                                 com.google.firebase.firestore.DocumentSnapshot snapshot = task.getResult();
-                                //String text = snapshot.getString("profileImage");
-                                Uri uri = (Uri) snapshot.getData().get("profileImage");
-                                Glide.with(requireContext()).load(uri).into(profileImage);
+                                String text = snapshot.getString("profileImage");
+                                Glide.with(requireContext()).load(text).into(profileImage);
                             }
                         }
                     });

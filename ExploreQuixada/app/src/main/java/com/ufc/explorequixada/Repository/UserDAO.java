@@ -17,6 +17,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
+import com.ufc.explorequixada.Entity.FriendEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Interface.UserInterface;
 
@@ -104,29 +105,31 @@ public class UserDAO implements UserInterface{
         return null;
     }
 
-    public void getAllUsers(final OnUsersLoadedListener listener) {
-        usersCollection.orderBy("name", Query.Direction.DESCENDING).addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@NonNull QuerySnapshot value, com.google.firebase.firestore.FirebaseFirestoreException error) {
-                if(error != null){
+    public UserEntity orderByUsername(String username, final onFriendFindedListener listener) {
+        usersCollection
+                .whereEqualTo("username", username)
+                .orderBy("username", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            FriendEntity friend = documentSnapshot.toObject(FriendEntity.class);
+                            if (listener != null) {
+                                listener.onFriendFinded(friend);
+                            }
+                            return;
+                        }
+                    }
                     if (listener != null) {
-                        listener.onUsersLoaded(null);
+                        listener.onFriendFinded(null);
                     }
-                    return;
-                }
-
-                List<UserEntity> users = value.toObjects(UserEntity.class);
-                for(DocumentChange dc : value.getDocumentChanges()){
-                    if(dc.getType() == DocumentChange.Type.ADDED){
-                        users.add(dc.getDocument().toObject(UserEntity.class));
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onFriendFinded(null);
                     }
-                }
-
-                if (listener != null) {
-                    listener.onUsersLoaded(users);
-                }
-            }
-        });
+                });
+        return null;
     }
 
     @Override
@@ -140,6 +143,10 @@ public class UserDAO implements UserInterface{
 
     public interface OnUserFindedListener {
         void onUserFinded(UserEntity user);
+    }
+
+    public interface onFriendFindedListener {
+        void onFriendFinded(FriendEntity friend);
     }
 
     public interface OnUsersLoadedListener {

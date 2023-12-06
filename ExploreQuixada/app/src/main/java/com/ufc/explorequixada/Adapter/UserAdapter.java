@@ -26,11 +26,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 
 	UserEntity user;
 	Context context;
-	ArrayList<UserEntity> users;
+	ArrayList<FriendEntity> friends;
 
-	public UserAdapter(Context context, ArrayList<UserEntity> users, UserEntity user) {
+	public UserAdapter(Context context, ArrayList<FriendEntity> friends, UserEntity user) {
 		this.context = context;
-		this.users = users;
+		this.friends = friends;
 		this.user = user;
 	}
 
@@ -38,12 +38,25 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 	@Override
 	public UserAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(this.context).inflate(R.layout.user_layout, parent, false);
-		return new MyViewHolder(view);
+		return new MyViewHolder(view, this.user);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull UserAdapter.MyViewHolder holder, int position) {
-		UserEntity user = this.users.get(position);
+		FriendEntity currentFriend = this.friends.get(position);
+		holder.setCurrentFriend(currentFriend);
+		if(currentFriend != null) {
+			holder.username.setText(currentFriend.getName());
+			holder.btnAddFriend.setVisibility(View.GONE);
+			holder.btnDeleteFriend.setVisibility(View.VISIBLE);
+		} else {
+			holder.username.setText(currentFriend.getName());
+			holder.btnAddFriend.setVisibility(View.VISIBLE);
+			holder.btnDeleteFriend.setVisibility(View.GONE);
+		}
+
+		holder.getFriends();
+
 		holder.userDAO = new UserDAO();
 		holder.userDAO.findByUsername(user.getUsername(), userEntity -> {
 			if(userEntity != null) {
@@ -54,7 +67,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 
 	@Override
 	public int getItemCount() {
-		return this.users.size();
+		return friends.size();
 	}
 
 	public static class MyViewHolder extends RecyclerView.ViewHolder{
@@ -68,11 +81,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 
 		ArrayList<FriendEntity> friends;
 
-		UserEntity user;
-		FriendEntity friend;
+		UserEntity userCurrent;
+		FriendEntity friendCurrent;
 
 
-		public MyViewHolder(@NonNull View itemView) {
+		public MyViewHolder(@NonNull View itemView, UserEntity user) {
 			super(itemView);
 
 			username = itemView.findViewById(R.id.username);
@@ -85,8 +98,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 			userDAO = new UserDAO();
 			friendDAO = new FriendDAO();
 
-			user = getCurrentUser();
-			friend = getCurrentFriend();
+			userCurrent = user;
+			friendCurrent = getCurrentFriend();
 
 			btnAddFriend.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -101,6 +114,25 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 					deleteFriend(username.getText().toString());
 				}
 			});
+		}
+
+		public void getFriends() {
+			if(userCurrent.getFriends() != null) {
+				for(UserEntity friend : userCurrent.getFriends()) {
+					String friendName = friend.getUsername();
+					userDAO.orderByUsername(friendName, new UserDAO.onFriendFindedListener() {
+						@Override
+						public void onFriendFinded(FriendEntity friend) {
+							if(friend != null) {
+								friends.clear();
+								friends.add(friend);
+							}
+						}
+					});
+				}
+			} else {
+				friends.clear();
+			}
 		}
 
 		public void addFriend(String username) {
@@ -130,12 +162,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 			});
 		}
 
-		private UserEntity getCurrentUser() {
-			return user;
+		public void setCurrentFriend(FriendEntity friend) {
+			friendCurrent = friend;
 		}
-
 		private FriendEntity getCurrentFriend() {
-			return friend;
+			return friendCurrent;
 		}
 	}
 }

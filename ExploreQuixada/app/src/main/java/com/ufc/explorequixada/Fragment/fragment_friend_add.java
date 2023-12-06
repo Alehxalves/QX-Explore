@@ -36,7 +36,7 @@ public class fragment_friend_add extends Fragment {
 
 	private FirebaseFirestore reference;
 
-	private ArrayList<UserEntity> friends;
+	private ArrayList<FriendEntity> friends;
 	private UserEntity user;
 	private CurrentUserViewModel currentUser;
 	private FriendDAO friendDAO;
@@ -53,7 +53,7 @@ public class fragment_friend_add extends Fragment {
 		friendDAO = new FriendDAO();
 
 		userAdapter = new UserAdapter(getContext(), friends, user);
-		friends = new ArrayList<UserEntity>();
+		friends = new ArrayList<FriendEntity>();
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
