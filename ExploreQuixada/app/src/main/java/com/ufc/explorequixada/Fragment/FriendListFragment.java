@@ -76,7 +76,7 @@ public class FriendListFragment extends Fragment {
         searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         searchResultList.setAdapter(userAdapter);
-        //getFriends();
+        getFriends();
 
         btnSearch = view.findViewById(R.id.btnSearch);
         btnSearch.setOnClickListener(new View.OnClickListener() {

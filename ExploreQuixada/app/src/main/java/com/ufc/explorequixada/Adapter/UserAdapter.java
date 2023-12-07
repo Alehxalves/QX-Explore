@@ -143,7 +143,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyViewHolder>{
 				@Override
 				public void onFriendAdded(boolean success) {
 					if(success) {
-						Toast.makeText(itemView.getContext(), "Amigo adicionado", Toast.LENGTH_SHORT).show();
+						userDAO.addFriend(friend, new UserDAO.OnUserFindedListener() {
+							@Override
+							public void onUserFinded(UserEntity user) {
+								if(user != null) {
+									Toast.makeText(itemView.getContext(), "Amigo adicionado", Toast.LENGTH_SHORT).show();
+								}
+							}
+						});
 					}
 				}
 			});

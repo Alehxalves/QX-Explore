@@ -3,6 +3,7 @@ package com.ufc.explorequixada.Repository;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -12,7 +13,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -21,6 +24,8 @@ import com.ufc.explorequixada.Entity.FriendEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Interface.UserInterface;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class UserDAO implements UserInterface{
@@ -132,6 +137,52 @@ public class UserDAO implements UserInterface{
         return null;
     }
 
+    public UserEntity getAllUsers(final OnUsersLoadedListener listener) {
+        usersCollection.orderBy("username", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            if (listener != null) {
+                                listener.onUsersLoaded(Collections.emptyList());
+                            }
+                            return;
+                        }
+
+                        List<FriendEntity> users = new ArrayList<>();
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            FriendEntity user = dc.getDocument().toObject(FriendEntity.class);
+                            users.add(user);
+                        }
+
+                        if (listener != null) {
+                            listener.onUsersLoaded(users);
+                        }
+                    }
+                });
+        return null;
+    }
+
+    public UserEntity addFriend(UserEntity user, final OnUserFindedListener listener) {
+        String name = user.getUsername();
+        findByUsername(name, new OnUserFindedListener() {
+            @Override
+            public void onUserFinded(UserEntity user) {
+                if(user == null) {
+                    if(listener != null) {
+                        listener.onUserFinded(null);
+                    }
+                    return;
+                }
+                usersCollection.document(user.getId()).update("friends", user.getFriends());
+                if(listener != null) {
+                    listener.onUserFinded(user);
+                }
+            }
+        });
+        return null;
+    }
+
     @Override
     public boolean deleteById(String id) {
         return false;
@@ -150,6 +201,6 @@ public class UserDAO implements UserInterface{
     }
 
     public interface OnUsersLoadedListener {
-        void onUsersLoaded(List<UserEntity> user);
+        void onUsersLoaded(List<FriendEntity> user);
     }
 }

@@ -14,6 +14,7 @@ import com.google.firebase.firestore.auth.User;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Fragment.FeedFragment;
 import com.ufc.explorequixada.Fragment.FriendListFragment;
+import com.ufc.explorequixada.Fragment.fragment_friend_add;
 import com.ufc.explorequixada.Repository.UserDAO;
 
 public class UserController {
@@ -25,6 +26,12 @@ public class UserController {
         userDAO = new UserDAO();
         friendListFragment = friendListFragment;
     }
+
+    public UserController(fragment_friend_add fragment_friend_add) {
+        userDAO = new UserDAO();
+        fragment_friend_add = fragment_friend_add;
+    }
+
 
     public void createUser(UserEntity user) {
         userDAO.createUser(user, isSuccess -> {
