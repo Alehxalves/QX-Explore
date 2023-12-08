@@ -11,4 +11,8 @@ public interface PostInterface{
 
     void newPost(PostEntity post, final PostDAO.OnPostCreatedListener listener);
 
+    void deletePostById(String postId, final PostDAO.OnPostDeletedListener listener);
+
+    void getAllPosts(final PostDAO.OnPostsLoadedListener listener);
+
 }

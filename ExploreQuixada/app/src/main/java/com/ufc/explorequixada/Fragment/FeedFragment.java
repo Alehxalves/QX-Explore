@@ -19,7 +19,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ufc.explorequixada.Adapter.PostAdapter;
-import com.ufc.explorequixada.Controller.PostController;
 import com.ufc.explorequixada.Entity.PostEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
@@ -31,18 +30,14 @@ import java.util.List;
 
 public class FeedFragment extends Fragment {
 
-    private CurrentUserViewModel currentUser;
-    private PostController postController;
-
-    private PostDAO postDAO;
-    private UserEntity user;
-    private EditText editTextPost;
-    private Button bntPost;
-
-    private RecyclerView recycleViewPosts;
-
-    private ArrayList<PostEntity> posts;
-    private PostAdapter postAdapter;
+    CurrentUserViewModel currentUser;
+    PostDAO postDAO;
+    UserEntity user;
+    EditText editTextPost;
+    Button bntPost;
+    RecyclerView recycleViewPosts;
+    ArrayList<PostEntity> posts;
+    PostAdapter postAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +47,6 @@ public class FeedFragment extends Fragment {
         user = currentUser.getUser();
         postDAO = new PostDAO();
 
-        postController = new PostController(this);
         posts = new ArrayList<PostEntity>();
         postAdapter = new PostAdapter(FeedFragment.this.getContext(),posts, user);
     }

@@ -18,9 +18,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.ufc.explorequixada.Controller.UserController;
 import com.ufc.explorequixada.Entity.UserEntity;
-//import com.ufc.explorequixada.Fragment.SettingsFragment;
+import com.ufc.explorequixada.Fragment.SettingsFragment;
 import com.ufc.explorequixada.R;
 import com.ufc.explorequixada.Repository.UserDAO;
 

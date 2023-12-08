@@ -1,6 +1,8 @@
 package com.ufc.explorequixada.Adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -53,13 +55,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
     @Override
     public PostAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(this.context).inflate(R.layout.post_item, parent, false);
-        return new MyViewHolder(view, this.user);
+        return new MyViewHolder(view, this.user, this.posts, this);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         PostEntity currentPost = this.posts.get(position);
         holder.setCurrentPost(currentPost);
+        holder.getComments();
 
         if(currentPost.getUsername().equals(user.getUsername())) {
             holder.username.setText("Eu");
@@ -68,7 +71,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
             holder.btnDeletePost.setVisibility(View.GONE);
             holder.username.setText(currentPost.getUsername());
         }
-        holder.getComments();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yy HH:mm", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
@@ -95,8 +97,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
         EditText editTextComment;
         UserEntity currentUser;
         PostEntity currentPost;
-        public MyViewHolder(@NonNull View itemView, UserEntity user) {
+        PostAdapter adapter;
+        ArrayList<PostEntity> posts;
+        public MyViewHolder(@NonNull View itemView, UserEntity user, ArrayList<PostEntity> posts, PostAdapter adapter) {
             super(itemView);
+            this.posts = posts;
+            this.adapter = adapter;
             postDAO = new PostDAO();
             commentDAO = new CommentDAO();
             comments = new ArrayList<CommentEntity>();
@@ -127,7 +133,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
             btnDeletePost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    deletePost();
+                    showDeleteConfirmationDialog();
                 }
             });
         }
@@ -163,18 +169,45 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
             getComments();
         }
 
-        public void deletePost() {
+        private void showDeleteConfirmationDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+            builder.setTitle("Confirmação");
+            builder.setMessage("Tem certeza de que deseja deletar esta postagem?");
+
+            builder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deletePost();
+                    dialog.dismiss();
+                }
+            });
+
+            builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+        private void deletePost() {
             postDAO.deletePostById(currentPost.getId(), new PostDAO.OnPostDeletedListener() {
                 @Override
                 public void onPostDeleted(boolean isSuccess) {
-                    if(isSuccess) {
+                    if (isSuccess) {
                         Toast.makeText(itemView.getContext(), "Postagem deletada", Toast.LENGTH_SHORT).show();
+                        posts.remove(currentPost);
+                        adapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(itemView.getContext(), "Erro ao deletar postagem", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
+
         public void setCurrentPost(PostEntity post) {
             currentPost = post;
         }

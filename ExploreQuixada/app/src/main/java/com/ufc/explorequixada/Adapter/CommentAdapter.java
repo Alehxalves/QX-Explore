@@ -1,6 +1,8 @@
 package com.ufc.explorequixada.Adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +44,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
     @Override
     public CommentAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(this.context).inflate(R.layout.comment_item, parent, false);
-        return new MyViewHolder(view);
+        return new MyViewHolder(view,this.comments, this);
     }
 
     @Override
@@ -76,8 +78,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
         CommentEntity currentComment;
         TextView username, date, commentContent;
         FloatingActionButton btnDeleteComment;
-        public MyViewHolder(@NonNull View itemView) {
+
+        CommentAdapter adapter;
+        ArrayList<CommentEntity> comments;
+        public MyViewHolder(@NonNull View itemView, ArrayList<CommentEntity> comments, CommentAdapter adapter) {
             super(itemView);
+            this.comments = comments;
+            this.adapter = adapter;
             commentDAO = new CommentDAO();
             currentComment = getCurrentComment();
             username = itemView.findViewById(R.id.username);
@@ -88,9 +95,33 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
             btnDeleteComment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    deleteComment();
+                    showDeleteConfirmationDialog();
                 }
             });
+        }
+
+        private void showDeleteConfirmationDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+            builder.setTitle("Confirmação");
+            builder.setMessage("Tem certeza de que deseja deletar este comentário?");
+
+            builder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deleteComment();
+                    dialog.dismiss();
+                }
+            });
+
+            builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         public void deleteComment() {
@@ -99,6 +130,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
                 public void onCommentDeleted(boolean isSuccess) {
                     if(isSuccess) {
                         Toast.makeText(itemView.getContext(), "Comentário deletado.", Toast.LENGTH_SHORT).show();
+                        comments.remove(currentComment);
+                        adapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(itemView.getContext(), "Erro ao deletar comentário.", Toast.LENGTH_SHORT).show();
                     }

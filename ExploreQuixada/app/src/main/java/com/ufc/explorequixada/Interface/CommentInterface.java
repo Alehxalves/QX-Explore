@@ -8,4 +8,8 @@ import com.ufc.explorequixada.Repository.PostDAO;
 public interface CommentInterface {
 
     void newComment(CommentEntity post, final CommentDAO.OnCommentCreatedListener listener);
+    void getAllCommentsForPost(String postId,final CommentDAO.OnCommentsLoadedListener listener);
+    void deleteCommentById(String commentId, final CommentDAO.OnCommentDeletedListener listener);
+
+
 }

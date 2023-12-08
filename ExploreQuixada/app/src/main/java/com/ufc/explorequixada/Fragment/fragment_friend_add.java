@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ufc.explorequixada.Adapter.UserAdapter;
-import com.ufc.explorequixada.Controller.UserController;
 import com.ufc.explorequixada.Entity.FriendEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
@@ -45,7 +44,6 @@ public class fragment_friend_add extends Fragment {
 	private UserDAO userDAO;
 	private RecyclerView friendFindResult;
 	private UserAdapter userAdapter;
-	private UserController userController;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +55,6 @@ public class fragment_friend_add extends Fragment {
 		friendDAO = new FriendDAO();
 		userDAO = new UserDAO();
 
-		userController = new UserController(this);
 		userFriends = new ArrayList<FriendEntity>();
 		userAdapter = new UserAdapter(fragment_friend_add.this.getContext(), userFriends, user);
 

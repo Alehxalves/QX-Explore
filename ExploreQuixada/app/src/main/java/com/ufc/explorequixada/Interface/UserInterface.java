@@ -11,6 +11,8 @@ public interface UserInterface{
 
     UserEntity findByEmail(String email, final UserDAO.OnUserFindedListener listener);
 
+    UserEntity findByUsername(String username, final UserDAO.OnUserFindedListener listener);
+
     boolean deleteById(String id);
 
 }

@@ -18,7 +18,6 @@ import android.widget.EditText;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ufc.explorequixada.Adapter.UserAdapter;
-import com.ufc.explorequixada.Controller.UserController;
 import com.ufc.explorequixada.Entity.FriendEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
@@ -45,7 +44,6 @@ public class FriendListFragment extends Fragment {
     private RecyclerView searchResultList;
     private UserAdapter userAdapter;
     private CurrentUserViewModel currentUser;
-    private UserController userController;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,7 +55,6 @@ public class FriendListFragment extends Fragment {
         friendDAO = new FriendDAO();
         userDAO = new UserDAO();
 
-        userController = new UserController(this);
         userFriends = new ArrayList<FriendEntity>();
         userAdapter = new UserAdapter(getContext(), userFriends, user);
 

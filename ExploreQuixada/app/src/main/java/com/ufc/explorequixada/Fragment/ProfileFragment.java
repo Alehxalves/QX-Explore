@@ -37,32 +37,43 @@ import com.google.firebase.storage.StorageReference;
 import com.ufc.explorequixada.Activity.LoginActivity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
+import com.ufc.explorequixada.Repository.PostDAO;
 import com.ufc.explorequixada.Repository.UserDAO;
+import com.ufc.explorequixada.Utils.CurrentUserViewModel;
 import com.ufc.explorequixada.Utils.UserViewModel;
 
 import java.util.Map;
 import java.util.Objects;
 
 public class ProfileFragment extends Fragment {
-    private UserDAO userDAO;
-    private UserViewModel userViewModel;
-    private FirebaseUser loggedUser;
+    CurrentUserViewModel currentUser;
+
+    UserEntity user;
+    UserDAO userDAO;
+    UserViewModel userViewModel;
+    FirebaseUser loggedUser;
     //private DatabaseReference userRef;
-    private FirebaseFirestore userRef;
-    private FirebaseAuth mAuth;
-    private Button btnLogout;
-    private Button btnEditProfile;
-    private ImageView profileImage;
-    private TextView username, postCount, friendCount;
-    private ProgressBar progressBar;
+    FirebaseFirestore userRef;
+    FirebaseAuth mAuth;
+    Button btnLogout;
+    Button btnEditProfile;
+    ImageView profileImage;
+    TextView username, postCount, friendCount;
+    ProgressBar progressBar;
+
+    PostDAO postDAO;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        currentUser = new ViewModelProvider(requireActivity()).get(CurrentUserViewModel.class);
 
+        user = currentUser.getUser();
         loggedUser = userViewModel.getUser();
+
         userDAO = new UserDAO();
+        postDAO = new PostDAO();
 
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseFirestore.getInstance();
@@ -103,68 +114,22 @@ public class ProfileFragment extends Fragment {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
-
     }
 
     public void setDetails() {
-        //profileImage.setImageResource(R.drawable.user_profile);
-        int totalPosts = getTotalPosts();
-        postCount.setText("Posts: " + totalPosts);
+        progressBar.setVisibility(View.VISIBLE);
+        profileImage.setImageResource(R.drawable.user_profile);
+        getTotalPosts();
         int totalFriends = getTotalFriends();
         friendCount.setText("Amigos: " + totalFriends);
-        progressBar.setVisibility(View.VISIBLE);
-
-
-        userDAO.findByEmail(loggedUser.getEmail(), new UserDAO.OnUserFindedListener() {
-            @Override
-            public void onUserFinded(UserEntity user) {
-                if (user != null) {
-
-                    userRef.collection("users").document(loggedUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<com.google.firebase.firestore.DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<com.google.firebase.firestore.DocumentSnapshot> task) {
-                            if(task.isSuccessful()) {
-                                com.google.firebase.firestore.DocumentSnapshot snapshot = task.getResult();
-                                String text = snapshot.getString("username");
-                                username.setText(text);
-                            }
-                        }
-                    });
-
-                    userRef.collection("users").document(loggedUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<com.google.firebase.firestore.DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<com.google.firebase.firestore.DocumentSnapshot> task) {
-                            if(task.isSuccessful()) {
-                                com.google.firebase.firestore.DocumentSnapshot snapshot = task.getResult();
-                                String text = snapshot.getString("profileImage");
-                                Glide.with(requireContext()).load(text).into(profileImage);
-                            }
-                        }
-                    });
-
-                    /*UserProfileImageRef.child(loggedUser.getUid() + ".jpg").getDownloadUrl().addOnCompleteListener(new OnCompleteListener<android.net.Uri>() {
-                        @Override
-                        public void onComplete(@NonNull Task<android.net.Uri> task) {
-                            if(task.isSuccessful()) {
-                                android.net.Uri uri = task.getResult();
-                                Glide.with(requireContext()).load(uri).into(profileImage);
-                            }
-                        }
-                    });*/
-
-                    //profileImage.setImageResource(loggedUser.getPhotoUrl().hashCode());
-                    progressBar.setVisibility(View.GONE);
-                } else {
-
-                    Toast.makeText(getActivity(), "Ocorreu um erro inesperado.", Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
+        username.setText(user.getUsername());
+        progressBar.setVisibility(View.GONE);
     }
 
-    private int getTotalPosts() {
-        return 10;
+    private void getTotalPosts() {
+        postDAO.getPostCountByUserName(user.getUsername(), count -> {
+            postCount.setText("Posts: " + count);
+        });
     }
 
     private int getTotalFriends() {

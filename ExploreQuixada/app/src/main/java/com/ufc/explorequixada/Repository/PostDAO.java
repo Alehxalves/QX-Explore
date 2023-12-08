@@ -97,6 +97,22 @@ public class PostDAO implements PostInterface {
             }
         });
     }
+
+    public void getPostCountByUserName(String username, final OnPostCountLoadedListener listener) {
+        postsCollection
+                .whereEqualTo("username", username)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (listener != null) {
+                        listener.onPostCountLoaded(queryDocumentSnapshots.size());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onPostCountLoaded(0); // Em caso de erro, retorna 0 como contador
+                    }
+                });
+    }
     public interface OnPostCreatedListener {
         void onPostCreated(boolean isSuccess);
     }
@@ -109,4 +125,7 @@ public class PostDAO implements PostInterface {
         void onPostsLoaded(List<PostEntity> posts);
     }
 
+    public interface OnPostCountLoadedListener {
+        void onPostCountLoaded(int postCount);
+    }
 }
