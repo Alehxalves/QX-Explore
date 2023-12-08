@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
+    id("com.google.secrets_gradle_plugin") version "0.5"
 }
 
 android {
@@ -50,6 +52,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.0.0")
     implementation("com.google.firebase:firebase-database:20.0.2")
 
+    implementation("com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.vanniktech:android-image-cropper:4.5.0")

@@ -137,11 +137,14 @@ public class UserDAO implements UserInterface{
         return null;
     }
 
-    public UserEntity getAllUsers(final OnUsersLoadedListener listener) {
-        usersCollection.orderBy("username", Query.Direction.DESCENDING)
+    public UserEntity getAllUsers(String username, final OnUsersLoadedListener listener) {
+        usersCollection.whereEqualTo("username", username)
+                .orderBy("username", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException error) {
+
                         if (error != null) {
                             if (listener != null) {
                                 listener.onUsersLoaded(Collections.emptyList());
@@ -150,8 +153,9 @@ public class UserDAO implements UserInterface{
                         }
 
                         List<FriendEntity> users = new ArrayList<>();
-                        for (DocumentChange dc : value.getDocumentChanges()) {
-                            FriendEntity user = dc.getDocument().toObject(FriendEntity.class);
+
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            FriendEntity user = documentSnapshot.toObject(FriendEntity.class);
                             users.add(user);
                         }
 
@@ -174,7 +178,35 @@ public class UserDAO implements UserInterface{
                     }
                     return;
                 }
+
+                user.setFriendCount(user.getFriendCount() + 1);
+
                 usersCollection.document(user.getId()).update("friends", user.getFriends());
+                usersCollection.document(user.getId()).update("friendCount", user.getFriendCount());
+                if(listener != null) {
+                    listener.onUserFinded(user);
+                }
+            }
+        });
+        return null;
+    }
+
+    public UserEntity removeFriend(UserEntity user, final OnUserFindedListener listener) {
+        String name = user.getUsername();
+        findByUsername(name, new OnUserFindedListener() {
+            @Override
+            public void onUserFinded(UserEntity user) {
+                if(user == null) {
+                    if(listener != null) {
+                        listener.onUserFinded(null);
+                    }
+                    return;
+                }
+
+                user.setFriendCount(user.getFriendCount() - 1);
+
+                usersCollection.document(user.getId()).update("friends", user.getFriends());
+                usersCollection.document(user.getId()).update("friendCount", user.getFriendCount());
                 if(listener != null) {
                     listener.onUserFinded(user);
                 }

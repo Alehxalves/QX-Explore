@@ -65,6 +65,7 @@ public class FriendDAO implements FriendInterface {
 				}
 
 				FriendEntity friend = friends.get(0);
+
 				friendCollection.document(friend.getId()).update("friends", user.getFriends());
 				if(listener != null) {
 					listener.onFriendAdded(true);

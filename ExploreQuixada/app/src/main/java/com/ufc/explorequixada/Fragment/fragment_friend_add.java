@@ -79,6 +79,7 @@ public class fragment_friend_add extends Fragment {
 		friendFindResult.setLayoutManager(new LinearLayoutManager(getContext()));
 
 		friendFindResult.setAdapter(userAdapter);
+		userFriends.clear();
 
 		btnFindFriend.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -105,29 +106,18 @@ public class fragment_friend_add extends Fragment {
 	}
 
 	private void findFriend(String friendName) {
-		userDAO.findByUsername(friendName, new UserDAO.OnUserFindedListener() {
-			@Override
-			public void onUserFinded(UserEntity user) {
-				if(user != null) {
-					orderUsers(user);
-				} else {
-					Toast.makeText(getContext(), "Amigo não encontrado", Toast.LENGTH_SHORT).show();
-				}
-			}
-		});
-	}
 
-	private void orderUsers(UserEntity user) {
-		userDAO.orderByUsername(user.getUsername(), new UserDAO.onFriendFindedListener() {
-			@Override
-			public void onFriendFinded(FriendEntity friend) {
-				if(friend != null) {
-					userFriends.clear();
-					userFriends.add(friend);
-					userAdapter.notifyDataSetChanged();
-				}
+		reference.collection("users").whereEqualTo("username", friendName).get().addOnSuccessListener(queryDocumentSnapshots -> {
+			if(!queryDocumentSnapshots.isEmpty()) {
+				List<FriendEntity> users = queryDocumentSnapshots.toObjects(FriendEntity.class);
+				userFriends.clear();
+				userFriends.addAll(users);
+				userAdapter.notifyDataSetChanged();
+			} else {
+				Toast.makeText(getContext(), "Usuário não encontrado", Toast.LENGTH_SHORT).show();
 			}
 		});
+
 	}
 
 	private void returnFriendList(Fragment fragment) {
