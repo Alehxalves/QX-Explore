@@ -27,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.auth.User;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Fragment.FeedFragment;
+import com.ufc.explorequixada.Fragment.FollowingAndFollowers;
 import com.ufc.explorequixada.Fragment.HomeFragment;
 import com.ufc.explorequixada.Fragment.ProfileFragment;
 import com.ufc.explorequixada.Fragment.FriendListFragment;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         userDAO = new UserDAO();
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        replaceFragment(new HomeFragment());
+        replaceFragment(new FeedFragment());
 
         auth = FirebaseAuth.getInstance();
         userRef = (FirebaseDatabase.getInstance().getReference().child("Users"));
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.feed) {
                 replaceFragment(new FeedFragment());
             } else if (itemId == R.id.friendList) {
-                replaceFragment(new FriendListFragment());
+                replaceFragment(new FollowingAndFollowers());
             } else if (itemId == R.id.profile) {
                 replaceFragment(new ProfileFragment());
             }

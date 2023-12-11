@@ -16,13 +16,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.ufc.explorequixada.Adapter.PostAdapter;
 import com.ufc.explorequixada.Adapter.UserAdapter;
-import com.ufc.explorequixada.Entity.FriendEntity;
+import com.ufc.explorequixada.Entity.FollowerEntity;
+import com.ufc.explorequixada.Entity.PostEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
+import com.ufc.explorequixada.Repository.FollowerDAO;
 import com.ufc.explorequixada.Repository.FriendDAO;
+import com.ufc.explorequixada.Repository.PostDAO;
 import com.ufc.explorequixada.Repository.UserDAO;
 import com.ufc.explorequixada.Utils.CurrentUserViewModel;
 
@@ -31,96 +34,74 @@ import java.util.List;
 
 public class fragment_friend_add extends Fragment {
 
-	private Button btnFindFriend;
-	private Button btnReturnFriendList;
-	private EditText txtFriendAdded;
-
-	private FirebaseFirestore reference;
-
-	private ArrayList<FriendEntity> userFriends;
-	private UserEntity user;
-	private CurrentUserViewModel currentUser;
-	private FriendDAO friendDAO;
-	private UserDAO userDAO;
-	private RecyclerView friendFindResult;
-	private UserAdapter userAdapter;
+	CurrentUserViewModel currentUser;
+	UserEntity user;
+	FollowerDAO followerDAO;
+	UserDAO userDAO;
+	EditText editTextUserName;
+	Button btnFindFriend, btnReturn;
+	RecyclerView recycleViewFriends;
+	ArrayList<UserEntity> users;
+	UserAdapter userAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		currentUser = new ViewModelProvider(requireActivity()).get(CurrentUserViewModel.class);
 
 		user = currentUser.getUser();
-		friendDAO = new FriendDAO();
 		userDAO = new UserDAO();
+		followerDAO = new FollowerDAO();
 
-		userFriends = new ArrayList<FriendEntity>();
-		userAdapter = new UserAdapter(fragment_friend_add.this.getContext(), userFriends, user);
-
+		users = new ArrayList<UserEntity>();
+		userAdapter = new UserAdapter(fragment_friend_add.this.getContext(),users, user);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+							 Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_friend_add, container, false);
 
-		reference = FirebaseFirestore.getInstance();
-
 		btnFindFriend = view.findViewById(R.id.btnFindFriend);
-		btnReturnFriendList = view.findViewById(R.id.btnReturn);
-		txtFriendAdded = view.findViewById(R.id.userName);
+		btnReturn = view.findViewById(R.id.btnReturn);
+		editTextUserName = view.findViewById(R.id.userName);
+		recycleViewFriends = view.findViewById(R.id.SearchFriendResult);
+		recycleViewFriends.setHasFixedSize(true);
+		recycleViewFriends.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
-		friendFindResult = view.findViewById(R.id.SearchFriendResult);
-
-		friendFindResult.setHasFixedSize(true);
-		friendFindResult.setLayoutManager(new LinearLayoutManager(getContext()));
-
-		friendFindResult.setAdapter(userAdapter);
-		userFriends.clear();
-
+		recycleViewFriends.setAdapter(userAdapter);
 		btnFindFriend.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
-				String friendName = txtFriendAdded.getText().toString();
-				if(friendName.isEmpty()) {
-					Toast.makeText(getContext(), "Digite o nome do amigo", Toast.LENGTH_SHORT).show();
-					return;
-				} else {
-					findFriend(friendName);
-				}
-			}
-
-			});
-
-		btnReturnFriendList.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				returnFriendList(new FriendListFragment());
+			public void onClick(View v) {
+				search();
 			}
 		});
-
+		btnReturn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				voltar(new FollowingFragment());
+			}
+		});
 		return view;
 	}
-
-	private void findFriend(String friendName) {
-
-		reference.collection("users").whereEqualTo("username", friendName).get().addOnSuccessListener(queryDocumentSnapshots -> {
-			if(!queryDocumentSnapshots.isEmpty()) {
-				List<FriendEntity> users = queryDocumentSnapshots.toObjects(FriendEntity.class);
-				userFriends.clear();
-				userFriends.addAll(users);
+	public void search() {
+		String username = editTextUserName.getText().toString();
+		userDAO.findUsersByUsername(username, new UserDAO.OnUsersLoadedListener() {
+			@Override
+			public void onUsersLoaded(List<UserEntity> loadedUsers) {
+				users.clear();
+				users.addAll(loadedUsers);
 				userAdapter.notifyDataSetChanged();
-			} else {
-				Toast.makeText(getContext(), "Usuário não encontrado", Toast.LENGTH_SHORT).show();
 			}
 		});
-
+		editTextUserName.setText(null);
 	}
 
-	private void returnFriendList(Fragment fragment) {
+	public void voltar(Fragment fragment) {
 		FragmentManager fragmentManager = getParentFragmentManager();
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		fragmentTransaction.replace(R.id.frame_layout, fragment);
 		fragmentTransaction.commit();
 	}
+
 }

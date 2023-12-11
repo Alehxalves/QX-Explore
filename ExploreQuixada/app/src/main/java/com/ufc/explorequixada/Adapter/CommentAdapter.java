@@ -78,7 +78,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
         CommentEntity currentComment;
         TextView username, date, commentContent;
         FloatingActionButton btnDeleteComment;
-
         CommentAdapter adapter;
         ArrayList<CommentEntity> comments;
         public MyViewHolder(@NonNull View itemView, ArrayList<CommentEntity> comments, CommentAdapter adapter) {

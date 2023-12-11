@@ -37,6 +37,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ufc.explorequixada.Activity.LoginActivity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
+import com.ufc.explorequixada.Repository.FollowerDAO;
 import com.ufc.explorequixada.Repository.PostDAO;
 import com.ufc.explorequixada.Repository.UserDAO;
 import com.ufc.explorequixada.Utils.CurrentUserViewModel;
@@ -58,11 +59,10 @@ public class ProfileFragment extends Fragment {
     Button btnLogout;
     Button btnEditProfile;
     ImageView profileImage;
-    TextView username, postCount, friendCount;
+    TextView username, postCount, friendCount, followersCount;
     ProgressBar progressBar;
-
     PostDAO postDAO;
-
+    FollowerDAO followerDAO;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +74,7 @@ public class ProfileFragment extends Fragment {
 
         userDAO = new UserDAO();
         postDAO = new PostDAO();
+        followerDAO = new FollowerDAO();
 
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseFirestore.getInstance();
@@ -89,6 +90,7 @@ public class ProfileFragment extends Fragment {
         username = view.findViewById(R.id.username);
         postCount = view.findViewById(R.id.postCount);
         friendCount = view.findViewById(R.id.friendCount);
+        followersCount = view.findViewById(R.id.followersCount);
         btnLogout = view.findViewById(R.id.btnLogout);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         progressBar = view.findViewById(R.id.progressBar);
@@ -120,8 +122,8 @@ public class ProfileFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         profileImage.setImageResource(R.drawable.user_profile);
         getTotalPosts();
-        int totalFriends = getTotalFriends();
-        friendCount.setText("Amigos: " + totalFriends);
+        getTotalFollowing();
+        getTotalFollowers();
         username.setText(user.getUsername());
         progressBar.setVisibility(View.GONE);
     }
@@ -132,8 +134,16 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private int getTotalFriends() {
-        return 20;
+    private void getTotalFollowing() {
+        followerDAO.getFollowingCountByUserName(user.getUsername(), count -> {
+            friendCount.setText("Seguindo: " + count);
+        });
+    }
+
+    private void getTotalFollowers() {
+        followerDAO.getFollowersCountByUserName(user.getUsername(), count -> {
+            followersCount.setText("Seguidores: " + count);
+        });
     }
 
     public void logout() {

@@ -2,14 +2,13 @@ package com.ufc.explorequixada.Repository;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.ufc.explorequixada.Entity.FriendEntity;
+import com.ufc.explorequixada.Entity.FollowerEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.Interface.FriendInterface;
 
@@ -31,9 +30,9 @@ public class FriendDAO implements FriendInterface {
 				.get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if(!queryDocumentSnapshots.isEmpty()) {
-						List<FriendEntity> friends = new ArrayList<>();
+						List<FollowerEntity> friends = new ArrayList<>();
 						for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-							friends.add(documentSnapshot.toObject(FriendEntity.class));
+							friends.add(documentSnapshot.toObject(FollowerEntity.class));
 						}
 						if(listener != null) {
 							listener.onFriendFinded(friends);
@@ -56,7 +55,7 @@ public class FriendDAO implements FriendInterface {
 		String name = user.getUsername();
 		findFriends(name, new OnFriendFindedListener() {
 			@Override
-			public void onFriendFinded(List<FriendEntity> friends) {
+			public void onFriendFinded(List<FollowerEntity> friends) {
 				if(friends.isEmpty()) {
 					if(listener != null) {
 						listener.onFriendAdded(false);
@@ -64,7 +63,7 @@ public class FriendDAO implements FriendInterface {
 					return;
 				}
 
-				FriendEntity friend = friends.get(0);
+				FollowerEntity friend = friends.get(0);
 
 				friendCollection.document(friend.getId()).update("friends", user.getFriends());
 				if(listener != null) {
@@ -81,7 +80,7 @@ public class FriendDAO implements FriendInterface {
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if(!queryDocumentSnapshots.isEmpty()) {
 						for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-							FriendEntity friend = documentSnapshot.toObject(FriendEntity.class);
+							FollowerEntity friend = documentSnapshot.toObject(FollowerEntity.class);
 							friendCollection.document(friend.getId()).delete();
 							if(listener != null) {
 								listener.onFriendRemoved(true);
@@ -111,10 +110,10 @@ public class FriendDAO implements FriendInterface {
 					return;
 				}
 
-				List<FriendEntity> friends = new ArrayList<>();
+				List<FollowerEntity> friends = new ArrayList<>();
 				for(DocumentChange dc : value.getDocumentChanges()) {
 					if(dc.getType() == DocumentChange.Type.ADDED) {
-						friends.add(dc.getDocument().toObject(FriendEntity.class));
+						friends.add(dc.getDocument().toObject(FollowerEntity.class));
 					}
 				}
 
@@ -126,7 +125,7 @@ public class FriendDAO implements FriendInterface {
 	}
 
 	public interface OnFriendFindedListener {
-		void onFriendFinded(List<FriendEntity> friends);
+		void onFriendFinded(List<FollowerEntity> friends);
 	}
 	public interface  OnFriendAddedListener {
 		void onFriendAdded(boolean isAdded);

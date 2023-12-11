@@ -20,7 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="10dp">
 
         <TextView
             android:id="@+id/username"
@@ -36,7 +37,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Amigos: 0"
+            android:text="Seguindo: 0"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/followersCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Seguidores: 0"
             android:textSize="18dp" />
 
         <TextView
@@ -74,7 +83,8 @@
                 android:id="@+id/btnEditProfile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Editar" />
+                android:text="Editar"
+                android:visibility="gone"/>
 
             <Button
                 android:id="@+id/btnLogout"

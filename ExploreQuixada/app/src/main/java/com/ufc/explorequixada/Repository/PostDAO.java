@@ -109,7 +109,7 @@ public class PostDAO implements PostInterface {
                 })
                 .addOnFailureListener(e -> {
                     if (listener != null) {
-                        listener.onPostCountLoaded(0); // Em caso de erro, retorna 0 como contador
+                        listener.onPostCountLoaded(0);
                     }
                 });
     }

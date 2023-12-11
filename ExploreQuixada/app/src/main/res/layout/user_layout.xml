@@ -16,7 +16,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btnFriendAdd"
+                android:id="@+id/btnAddFriend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
@@ -60,7 +60,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/name"
+                    android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/profileImg"
@@ -72,7 +72,7 @@
                     android:id="@+id/email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/name"
+                    android:layout_below="@id/email"
                     android:layout_marginLeft="10dp"
                     android:layout_toEndOf="@id/profileImg"
                     android:text="email@email.com"

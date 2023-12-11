@@ -2,7 +2,6 @@ package com.ufc.explorequixada.Fragment;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -16,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.ufc.explorequixada.Adapter.FollowersAdapter;
+import com.ufc.explorequixada.Adapter.FollowingAdapter;
 import com.ufc.explorequixada.Entity.FollowerEntity;
 import com.ufc.explorequixada.Entity.UserEntity;
 import com.ufc.explorequixada.R;
@@ -29,9 +28,7 @@ import com.ufc.explorequixada.Utils.CurrentUserViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class FriendListFragment extends Fragment {
-    FirebaseFirestore reference;
+public class FollowingFragment extends Fragment {
     FollowerDAO followerDAO;
     ArrayList<FollowerEntity> userFriends;
     UserEntity user;
@@ -41,13 +38,11 @@ public class FriendListFragment extends Fragment {
     Button btnSearch;
     EditText searchInput;
     RecyclerView searchResultList;
-    FollowersAdapter followersAdapter;
+    FollowingAdapter followingAdapter;
     CurrentUserViewModel currentUser;
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         currentUser = new ViewModelProvider(requireActivity()).get(CurrentUserViewModel.class);
 
         user = currentUser.getUser();
@@ -56,24 +51,31 @@ public class FriendListFragment extends Fragment {
         followerDAO = new FollowerDAO();
 
         userFriends = new ArrayList<FollowerEntity>();
-        followersAdapter = new FollowersAdapter(FriendListFragment.this.getContext(), userFriends, user);
+        followingAdapter = new FollowingAdapter(FollowingFragment.this.getContext(), userFriends, user);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friend_list, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_followers, container, false);
 
-        reference = FirebaseFirestore.getInstance();
         btnSearch = view.findViewById(R.id.btnSearch);
-        //btnAddFriend = view.findViewById(R.id.btnAddFriend);
+        btnAddFriend = view.findViewById(R.id.btnAddFriend);
         searchInput = view.findViewById(R.id.searchBar);
         searchResultList = view.findViewById(R.id.friendFindedResult);
 
         searchResultList.setHasFixedSize(true);
         searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        searchResultList.setAdapter(followersAdapter);
+        searchResultList.setAdapter(followingAdapter);
         getFriends();
+
+        btnAddFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addFriend(new fragment_friend_add());
+            }
+        });
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,40 +83,48 @@ public class FriendListFragment extends Fragment {
                 SearchFriends();
             }
         });
-
         return view;
     }
 
+
     private void getFriends() {
-        followerDAO.getMyFollowers(user.getUsername(), new FollowerDAO.OnFollowersLoadedListener() {
+        followerDAO.getFollowing(user.getUsername(), new FollowerDAO.OnFollowersLoadedListener() {
             @Override
             public void onFollowersLoaded(List<FollowerEntity> followers) {
                 if(followers != null && !followers.isEmpty()) {
                     userFriends.clear();
                     userFriends.addAll(followers);
-                    followersAdapter.notifyDataSetChanged();
+                    followingAdapter.notifyDataSetChanged();
                 }
             }
         });
     }
 
     private void SearchFriends() {
-        if (searchInput.getText().toString().equals("") || searchInput.getText().toString().equals(" ") || searchInput.getText().toString() == null) {
+        if(searchInput.getText().toString().equals("") ||searchInput.getText().toString().equals(" ")|| searchInput.getText().toString() == null) {
             getFriends();
-        } else {
-            followerDAO.findFollowingByUsername(user.getUsername(), searchInput.getText().toString(), new FollowerDAO.OnFollowersLoadedListener() {
+        }else {
+            followerDAO.findFollowingByUsername(user.getUsername(),searchInput.getText().toString(), new FollowerDAO.OnFollowersLoadedListener() {
                 @Override
                 public void onFollowersLoaded(List<FollowerEntity> followers) {
-                    if (followers != null && !followers.isEmpty()) {
+                    if(followers != null && !followers.isEmpty()) {
                         userFriends.clear();
                         userFriends.addAll(followers);
-                        followersAdapter.notifyDataSetChanged();
-                    } else {
+                        followingAdapter.notifyDataSetChanged();
+                    }else {
                         userFriends.clear();
-                        followersAdapter.notifyDataSetChanged();
+                        followingAdapter.notifyDataSetChanged();
                     }
                 }
             });
         }
+
+    }
+
+    public void addFriend(Fragment fragment) {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout, fragment);
+        fragmentTransaction.commit();
     }
 }

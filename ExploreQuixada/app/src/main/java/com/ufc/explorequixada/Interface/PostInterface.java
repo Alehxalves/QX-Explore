@@ -15,4 +15,5 @@ public interface PostInterface{
 
     void getAllPosts(final PostDAO.OnPostsLoadedListener listener);
 
+    void getPostCountByUserName(String username, final PostDAO.OnPostCountLoadedListener listener);
 }

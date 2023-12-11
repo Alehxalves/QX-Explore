@@ -22,9 +22,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.type.LatLng;
-import com.ufc.explorequixada.Manifest;
+//import com.ufc.explorequixada.Manifest;
 import com.ufc.explorequixada.R;
-public class HomeFragment extends Fragment implements OnMapReadyCallback {
+public class HomeFragment extends Fragment  {
 
     Location currentLocation;
     FusedLocationProviderClient fusedClient;
@@ -35,40 +35,40 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        map = map.findViewById(R.id.map_fragment);
+        //map = map.findViewById(R.id.map_fragment);
 
-        fusedClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        getLocation();
-
-    }
-
-    private void getLocation() {
-        if(ActivityCompat.checkSelfPermission(
-                getActivity(), Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(
-                        getActivity(), Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}, REQUEST_CODE);
-            return;
-        }
-
-        Task<Location> task = fusedClient.getLastLocation();
-
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if(location != null)
-                    currentLocation = location;
-                SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
-                assert supportMapFragment != null;
-                supportMapFragment.getMapAsync(HomeFragment.this);
-            }
-        });
-    }
-
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        //fusedClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        //getLocation();
 
     }
+//
+//    private void getLocation() {
+//        if(ActivityCompat.checkSelfPermission(
+//                getActivity(), Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(
+//                        getActivity(), Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+//
+//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}, REQUEST_CODE);
+//            return;
+//        }
+//
+//        Task<Location> task = fusedClient.getLastLocation();
+//
+//        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+//            @Override
+//            public void onSuccess(Location location) {
+//                if(location != null)
+//                    currentLocation = location;
+//                SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
+//                assert supportMapFragment != null;
+//                supportMapFragment.getMapAsync(HomeFragment.this);
+//            }
+//        });
+//    }
+//
+//    @Override
+//    public void onMapReady(@NonNull GoogleMap googleMap) {
+//       // LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+//
+//    }
 }
