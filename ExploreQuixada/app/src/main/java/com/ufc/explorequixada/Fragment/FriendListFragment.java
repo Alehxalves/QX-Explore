@@ -99,10 +99,11 @@ public class FriendListFragment extends Fragment {
     }
 
     private void SearchFriends() {
-        if (searchInput.getText().toString().equals("") || searchInput.getText().toString().equals(" ") || searchInput.getText().toString() == null) {
+        String followerUsername = searchInput.getText().toString();
+        if (followerUsername.equals("") || followerUsername.equals(" ") || followerUsername == null) {
             getFriends();
         } else {
-            followerDAO.findFollowingByUsername(user.getUsername(), searchInput.getText().toString(), new FollowerDAO.OnFollowersLoadedListener() {
+            followerDAO.findFollowerByUsername(followerUsername, new FollowerDAO.OnFollowersLoadedListener() {
                 @Override
                 public void onFollowersLoaded(List<FollowerEntity> followers) {
                     if (followers != null && !followers.isEmpty()) {

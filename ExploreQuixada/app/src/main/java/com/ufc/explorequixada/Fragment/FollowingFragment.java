@@ -104,7 +104,7 @@ public class FollowingFragment extends Fragment {
         if(searchInput.getText().toString().equals("") ||searchInput.getText().toString().equals(" ")|| searchInput.getText().toString() == null) {
             getFriends();
         }else {
-            followerDAO.findFollowingByUsername(user.getUsername(),searchInput.getText().toString(), new FollowerDAO.OnFollowersLoadedListener() {
+            followerDAO.findFollowingByUsername(searchInput.getText().toString(), new FollowerDAO.OnFollowersLoadedListener() {
                 @Override
                 public void onFollowersLoaded(List<FollowerEntity> followers) {
                     if(followers != null && !followers.isEmpty()) {

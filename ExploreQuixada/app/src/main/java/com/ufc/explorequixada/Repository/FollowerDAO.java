@@ -106,10 +106,10 @@ public class FollowerDAO implements FollowerInterface {
                 });
     }
 
-    public void findFollowingByUsername(String currentUsername, String usernamePattern, final FollowerDAO.OnFollowersLoadedListener listener) {
+    public void findFollowingByUsername(String usernamePattern, final FollowerDAO.OnFollowersLoadedListener listener) {
         String endPattern = usernamePattern + "\uf8ff";
 
-        followersCollection.whereEqualTo("followerUsername", currentUsername)
+        followersCollection
                 .orderBy("followingUsername")
                 .startAt(usernamePattern)
                 .endAt(endPattern)
@@ -131,11 +131,11 @@ public class FollowerDAO implements FollowerInterface {
                 });
     }
 
-    public void findFollowerByUsername(String followingUsername, String usernamePattern, final FollowerDAO.OnFollowersLoadedListener listener) {
+    public void findFollowerByUsername(String usernamePattern, final FollowerDAO.OnFollowersLoadedListener listener) {
         String endPattern = usernamePattern + "\uf8ff";
 
-        followersCollection.whereEqualTo("followingUsername", followingUsername)
-                .orderBy("followingUsername")
+        followersCollection
+                .orderBy("followerUsername")
                 .startAt(usernamePattern)
                 .endAt(endPattern)
                 .get()
